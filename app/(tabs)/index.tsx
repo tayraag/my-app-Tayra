@@ -1,98 +1,125 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import {ROUTES} from "@/constants/routes";
+import { useRouter } from "expo-router";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import "react-native-reanimated";
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+const categorias: string[] = [
+  "beverages",
+  "dairies",
+  "snacks",
+  "breakfasts",
+  "desserts",
+  "chocolates",
+  "biscuits-and-cakes",
+  "cereals-and-potatoes",
+  "meals",
+  "plant-based-foods",
+];
 
-export default function HomeScreen() {
+const marcas: string[] = [
+  "nestle",
+  "coca-cola",
+  "pepsi",
+  "danone",
+  "kelloggs",
+  "unilever",
+  "mondelez",
+  "mars",
+  "ferrero",
+  "lactalis",
+];
+
+const etiquetas: string[] = [
+  "organic",
+  "vegan",
+  "vegetarian",
+  "gluten-free",
+  "no-added-sugar",
+  "fair-trade",
+  "lactose-free",
+  "palm-oil-free",
+  "high-fiber",
+  "low-fat",
+];
+
+export default function IndexScreen() {
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
-
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <ScrollView contentContainerStyle={styles.container}>
+      <SeccionList title="Categorias" items={categorias} type="categorias" />
+      <SeccionList title="Marcas" items={marcas} type="marcas" />
+      <SeccionList title="Etiquetas" items={etiquetas} type="etiquetas" />
+    </ScrollView>
   );
 }
 
+type SectionListProps = {
+  title: string;
+  items: string[];
+  type: "categorias" | "marcas" | "etiquetas";
+};
+const SeccionList = ({ title, items, type }: SectionListProps) => {
+  const router = useRouter();
+
+  const navToListItem = (item: string) => {
+    const pathname =
+      type === "categorias"
+        ? ROUTES.CATEGORIA
+        : type === "marcas"
+          ? ROUTES.MARCA
+          : ROUTES.ETIQUETA;
+    router.push({ pathname: pathname, params: { nombre: item } });
+  };
+
+  return (
+    <View style={styles.listBlock}>
+      <Text style={styles.listTitle}>{title}</Text>
+      <View style={styles.itemsContainer}>
+        {items.map((item) => (
+          <Pressable
+            key={item}
+            onPress={() => navToListItem(item)}
+            style={styles.itemButton}
+          >
+            <Text style={styles.itemText}>{item}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
+  );
+};
+
 const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
+  container: {
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    gap: 20,
+    paddingVertical: 32,
+    paddingHorizontal: 16,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  listBlock: {
+    width: "100%",
+    maxWidth: 420,
+    gap: 12,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  listTitle: {
+    fontSize: 24,
+    fontWeight: "700",
+  },
+  itemsContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 10,
+  },
+  itemButton: {
+    backgroundColor: "#f0f4f8",
+    borderWidth: 1,
+    borderColor: "#cbd5e1",
+    borderRadius: 999,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+  },
+  itemText: {
+    fontSize: 16,
   },
 });

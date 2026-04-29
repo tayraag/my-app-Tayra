@@ -1,33 +1,40 @@
 import { Tabs } from 'expo-router';
-import React from 'react';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
+export default function RootLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
+    <Tabs screenOptions={{ headerShown: false }}>
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
+          title: "Inicio",
+          headerTitle: "Inicio",
+          tabBarLabel: "Inicio",
+          tabBarIcon: ({color, size, focused}) => (
+            <FontAwesome name="home" size={26} color="black" />
+          )
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="search"
         options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
+          title: "Buscar",
+          headerTitle: "Buscar",
+          tabBarLabel: "Buscar",
+          tabBarIcon: ({color, size, focused}) => (
+            <FontAwesome name="search" size={22} color="black" />
+          )
+        }}
+      />
+      <Tabs.Screen
+        name="favorites"
+        options={{
+          title: "Favoritos",
+          headerTitle: "Favoritos",
+          tabBarLabel: "Favoritos",
+          tabBarIcon: ({color, size, focused}) => (
+            <FontAwesome name="heart" size={20} color="black" />
+          )
         }}
       />
     </Tabs>
