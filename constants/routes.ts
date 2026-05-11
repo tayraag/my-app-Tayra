@@ -9,13 +9,14 @@ export const ROUTES = {
   CATEGORIA: "/categorias/[nombre]",
   MARCA: "/marcas/[nombre]",
   ETIQUETA: "/etiquetas/[nombre]",
-  FICHA: "/ficha/[id]",
+  FICHA: "/fichas/[id]",
   TABS: "/",
   TABS_FAVS: "/favoritos",
 } as const;
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
 type RouteParams = Record<string, string | number | boolean | undefined>;
+
 export const buildRoute = (route: AppRoute, params?: RouteParams): Href => {
   if (!params) {
     return route as Href;
@@ -25,6 +26,7 @@ export const buildRoute = (route: AppRoute, params?: RouteParams): Href => {
     params,
   } as Href;
 };
-export function fichaShowRoute(id: number) {
-  return buildRoute(ROUTES.FICHA, { id: id.toString() });
+
+export function fichaShowRoute(id: string) {
+  return buildRoute(ROUTES.FICHA, { id });
 }
