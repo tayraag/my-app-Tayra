@@ -3,6 +3,7 @@ import { Pressable, TextInput, FlatList, StyleSheet, Text, View } from "react-na
 import { productos, Producto } from "@/data/productos";
 import { useState } from "react";
 import { fichaShowRoute } from "@/constants/routes";
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 type CategoriaParams = {
   nombre: string;
@@ -23,11 +24,14 @@ function ProductosFiltrables({ categoria }: { categoria: string }) {
   const [busqueda, setBusqueda] = useState("");
   return (
     <>
-      <TextInput
-        style={styles.input}
-        placeholder="Buscar productos..."
-        onChangeText={setBusqueda}
-      />
+      <View style={styles.inputContainer}>
+        <FontAwesome name="search" size={18} color="grey" />
+        <TextInput
+          style={styles.input}
+          placeholder="Buscar productos..."
+          onChangeText={setBusqueda}
+        />
+      </View>
       <ProductosList categoria={categoria} busqueda={busqueda} />
     </>
   );
@@ -49,10 +53,11 @@ function ProductosList({ categoria, busqueda }: { categoria: string, busqueda: s
 
 function ProductoItem({ producto }: { producto: Producto }) {
   const router = useRouter();
-
+  
   return (
     <Pressable onPress={() => router.push(fichaShowRoute(producto.id))}>
       <View style={styles.item}>
+        <View style={styles.imagenPlaceholder} />
         <View style={styles.info}>
           <Text style={styles.nombre}>{producto.nombre}</Text>
           <Text style={styles.marca}>{producto.marca.toUpperCase()}</Text>
@@ -61,7 +66,7 @@ function ProductoItem({ producto }: { producto: Producto }) {
             <Text style={styles.eco}>ECO-SCORE {producto.ecoScore}</Text>
           </View>
         </View>
-      </View>  
+      </View>
     </Pressable>
   );
 }
@@ -69,8 +74,6 @@ function ProductoItem({ producto }: { producto: Producto }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     gap: 12,
     padding: 24,
   },
@@ -78,23 +81,37 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "700",
   },
-  input:{
-    height: 60,
-    width: "100%",
-    backgroundColor: "lightgray",
+  inputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#c7c7c7",
     borderRadius: 12,
-    paddingHorizontal: 16,
+    paddingHorizontal: 12,
+    gap: 8,
+    margin: 14,
+  },
+  input: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 16,
   },
   item: {
+    flexDirection: "row",
+    gap: 12,
     padding: 16,
     marginHorizontal: 16,
     marginTop: 12,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
+    backgroundColor: "#fff",
+    shadowColor: "#000",
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
   },
   info: {
     gap: 4,
+    flex: 1,
   },
   nombre: {
     fontSize: 16,
@@ -127,5 +144,11 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 1,
     borderColor: "#ccc",
+  },
+  imagenPlaceholder: {
+    width: 80,
+    height: 80,
+    backgroundColor: "#e0e0e0",
+    borderRadius: 8,
   },
 });

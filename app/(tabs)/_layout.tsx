@@ -16,7 +16,7 @@ export default function RootLayout() {
         }}
       />
       <Tabs.Screen
-        name="search"
+        name="buscar"
         options={{
           title: "Buscar",
           headerTitle: "Buscar",
@@ -27,7 +27,7 @@ export default function RootLayout() {
         }}
       />
       <Tabs.Screen
-        name="favorites"
+        name="favoritos"
         options={{
           title: "Favoritos",
           headerTitle: "Favoritos",

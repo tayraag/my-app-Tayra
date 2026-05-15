@@ -12,6 +12,7 @@ export const ROUTES = {
   FICHA: "/fichas/[id]",
   TABS: "/",
   TABS_FAVS: "/favoritos",
+  TABS_BUSCAR: "/buscar",
 } as const;
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];

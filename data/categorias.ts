@@ -14,5 +14,4 @@ export const categorias: Categoria[] = [
   { id: "cereals-and-potatoes", nombre: "cereals-and-potatoes" },
   { id: "meals", nombre: "meals" },
   { id: "plant-based-foods", nombre: "plant-based-foods" },
-  { id: "Título", nombre: "Título" },
 ];
