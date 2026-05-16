@@ -1,8 +1,6 @@
-import { useRouter } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
 
 export default function SearchScreen() {
-  const router = useRouter();
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Busqueda</Text>

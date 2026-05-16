@@ -4,6 +4,7 @@ import { productos, Producto } from "@/data/productos";
 import { useState } from "react";
 import { fichaShowRoute } from "@/constants/routes";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Image } from "expo-image";
 
 type CategoriaParams = {
   nombre: string;
@@ -57,7 +58,10 @@ function ProductoItem({ producto }: { producto: Producto }) {
   return (
     <Pressable onPress={() => router.push(fichaShowRoute(producto.id))}>
       <View style={styles.item}>
-        <View style={styles.imagenPlaceholder} />
+        <Image
+          source={{ uri: producto.imagen }}
+          style={styles.imagenPlaceholder}
+          contentFit="contain"/>
         <View style={styles.info}>
           <Text style={styles.nombre}>{producto.nombre}</Text>
           <Text style={styles.marca}>{producto.marca.toUpperCase()}</Text>

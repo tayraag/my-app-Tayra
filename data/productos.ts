@@ -21,6 +21,7 @@ export type Producto = {
   sal: number;           // g
   ingredientes: string;
   alergenos: string;
+  imagen: string;
 };
 
 export const productos: Producto[] = [
@@ -44,6 +45,7 @@ export const productos: Producto[] = [
     sal: 0.01,
     ingredientes: 'Agua mineral natural.',
     alergenos: 'Sin alérgenos.',
+    imagen: 'producto-41.jpg',
   },
   {
     id: '2',
@@ -64,6 +66,7 @@ export const productos: Producto[] = [
     sal: 0,
     ingredientes: 'Agua carbonatada, azúcar, colorante (caramelo E-150d), ácido fosfórico, aromas naturales, cafeína.',
     alergenos: 'Sin alérgenos declarados.',
+    imagen: 'producto-2.jpg',
   },
   {
     id: '3',
@@ -84,6 +87,7 @@ export const productos: Producto[] = [
     sal: 0.03,
     ingredientes: 'Agua carbonatada, colorante (caramelo E-150d), ácidos (fosfórico, cítrico), edulcorantes (aspartamo, acesulfamo K), aromas, cafeína.',
     alergenos: 'Contiene fenilalanina.',
+    imagen: 'producto-3.jpg',
   },
 
   // ─── DAIRIES ─────────────────────────────────────────────────
@@ -106,6 +110,7 @@ export const productos: Producto[] = [
     sal: 0.1,
     ingredientes: 'Leche entera pasteurizada, fermentos lácticos vivos.',
     alergenos: 'Contiene leche.',
+    imagen: 'producto-4.jpg',
   },
   {
     id: '5',
@@ -126,6 +131,7 @@ export const productos: Producto[] = [
     sal: 0.1,
     ingredientes: 'Leche entera.',
     alergenos: 'Contiene leche.',
+    imagen: 'producto-5.jpg',
   },
   {
     id: '6',
@@ -146,6 +152,7 @@ export const productos: Producto[] = [
     sal: 0.8,
     ingredientes: 'Leche desnatada, nata, proteínas de leche, sal, fermentos.',
     alergenos: 'Contiene leche.',
+    imagen: 'producto-6.jpg',
   },
 
   // ─── SNACKS ──────────────────────────────────────────────────
@@ -168,6 +175,7 @@ export const productos: Producto[] = [
     sal: 1.0,
     ingredientes: 'Patatas, aceite de girasol, sal.',
     alergenos: 'Sin alérgenos.',
+    imagen: 'producto-7.jpg',
   },
   {
     id: '8',
@@ -188,6 +196,7 @@ export const productos: Producto[] = [
     sal: 0,
     ingredientes: 'Almendras, nueces, anacardos, avellanas.',
     alergenos: 'Contiene frutos secos.',
+    imagen: 'producto-8.jpg',
   },
 
   // ─── BREAKFASTS ──────────────────────────────────────────────
@@ -210,6 +219,7 @@ export const productos: Producto[] = [
     sal: 0.01,
     ingredientes: 'Copos de avena integrales.',
     alergenos: 'Contiene gluten (avena). Puede contener trazas de trigo.',
+    imagen: 'producto-9.jpg',
   },
   {
     id: '10',
@@ -230,6 +240,7 @@ export const productos: Producto[] = [
     sal: 0.3,
     ingredientes: 'Avena, miel, almendras, aceite de girasol, azúcar.',
     alergenos: 'Contiene gluten y frutos secos.',
+    imagen: 'producto-10.jpg',
   },
   {
     id: '11',
@@ -250,6 +261,7 @@ export const productos: Producto[] = [
     sal: 1.2,
     ingredientes: 'Harina de trigo integral, agua, levadura, sal.',
     alergenos: 'Contiene gluten.',
+    imagen: 'producto-11.jpg',
   },
 
   // ─── DESSERTS ────────────────────────────────────────────────
@@ -272,6 +284,7 @@ export const productos: Producto[] = [
     sal: 0.15,
     ingredientes: 'Leche desnatada, azúcar, cacao desgrasado, nata, almidón, gelatina.',
     alergenos: 'Contiene leche.',
+    imagen: 'producto-12.jpg',
   },
   {
     id: '13',
@@ -292,6 +305,7 @@ export const productos: Producto[] = [
     sal: 0.1,
     ingredientes: 'Leche entera, azúcar, huevos, almidón de maíz, aroma de vainilla.',
     alergenos: 'Contiene leche y huevo.',
+    imagen: 'producto-13.jpg',
   },
 
   // ─── CHOCOLATES ──────────────────────────────────────────────
@@ -314,6 +328,7 @@ export const productos: Producto[] = [
     sal: 0.02,
     ingredientes: 'Pasta de cacao, azúcar, manteca de cacao, emulsionante (lecitina de soja).',
     alergenos: 'Puede contener trazas de leche, gluten y frutos secos.',
+    imagen: 'producto-14.jpg',
   },
   {
     id: '15',
@@ -334,6 +349,7 @@ export const productos: Producto[] = [
     sal: 0.15,
     ingredientes: 'Azúcar, leche entera en polvo, manteca de cacao, pasta de cacao, lactosa, emulsionante (lecitina de soja), aroma de vainilla.',
     alergenos: 'Contiene leche y soja.',
+    imagen: 'producto-15.jpg',
   },
   {
     id: '16',
@@ -354,6 +370,7 @@ export const productos: Producto[] = [
     sal: 0.12,
     ingredientes: 'Azúcar, aceite de palma, avellanas, leche en polvo, cacao, emulsionante (lecitina de soja).',
     alergenos: 'Contiene leche, soja, frutos secos y gluten.',
+    imagen: 'producto-16.jpg',
   },
 
   // ─── BISCUITS-AND-CAKES ──────────────────────────────────────
@@ -376,6 +393,7 @@ export const productos: Producto[] = [
     sal: 0.6,
     ingredientes: 'Harina de avena integral, azúcar, arándanos deshidratados, aceite de girasol, sal.',
     alergenos: 'Contiene gluten.',
+    imagen: 'producto-17.jpg',
   },
   {
     id: '18',
@@ -396,6 +414,7 @@ export const productos: Producto[] = [
     sal: 0.7,
     ingredientes: 'Harina de trigo, azúcar, huevos, aceite vegetal, leche en polvo, levadura, aroma de vainilla.',
     alergenos: 'Contiene gluten, huevo y leche.',
+    imagen: 'producto-18.jpg',
   },
 
   // ─── CEREALS-AND-POTATOES ────────────────────────────────────
@@ -418,6 +437,7 @@ export const productos: Producto[] = [
     sal: 1.2,
     ingredientes: 'Maíz, azúcar, sal, vitaminas y minerales.',
     alergenos: 'Puede contener gluten.',
+    imagen: 'producto-19.jpg',
   },
   {
     id: '20',
@@ -438,6 +458,7 @@ export const productos: Producto[] = [
     sal: 1.5,
     ingredientes: 'Copos de papa deshidratada, sal.',
     alergenos: 'Sin alérgenos declarados.',
+    imagen: 'producto-20.jpg',
   },
 
   // ─── MEALS ───────────────────────────────────────────────────
@@ -460,6 +481,7 @@ export const productos: Producto[] = [
     sal: 0.6,
     ingredientes: 'Pasta de trigo durum, tomate, aceite de oliva, sal, especias.',
     alergenos: 'Contiene gluten.',
+    imagen: 'producto-21.jpg',
   },
   {
     id: '22',
@@ -480,6 +502,7 @@ export const productos: Producto[] = [
     sal: 0.5,
     ingredientes: 'Agua, zanahoria, papa, tomate, cebolla, apio, sal, pimienta.',
     alergenos: 'Sin alérgenos declarados.',
+    imagen: 'producto-22.jpg',
   },
 
   // ─── PLANT-BASED-FOODS ───────────────────────────────────────
@@ -502,6 +525,7 @@ export const productos: Producto[] = [
     sal: 0.1,
     ingredientes: 'Agua, avena (10%), aceite de colza, sal, vitaminas (D2, B12, Riboflavina).',
     alergenos: 'Contiene gluten (avena).',
+    imagen: 'producto-23.jpg',
   },
   {
     id: '24',
@@ -522,6 +546,7 @@ export const productos: Producto[] = [
     sal: 0.01,
     ingredientes: 'Agua, soja orgánica, sulfato de calcio.',
     alergenos: 'Contiene soja.',
+    imagen: 'producto-24.jpg',
   },
   {
     id: '25',
@@ -542,5 +567,6 @@ export const productos: Producto[] = [
     sal: 1.1,
     ingredientes: 'Proteína de guisante, agua, aceite de coco, almidón de patata, metilcelulosa, sal.',
     alergenos: 'Sin alérgenos declarados.',
+    imagen: 'producto-25.jpg',
   },
 ];

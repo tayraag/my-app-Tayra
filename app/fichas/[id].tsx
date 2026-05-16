@@ -3,6 +3,7 @@ import { useRouter, Stack, useLocalSearchParams } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { ROUTES } from "@/constants/routes";
+import { Image } from "expo-image";
 
 type FichaParams = {
   id: string;
@@ -20,7 +21,10 @@ export default function FichaScreen() {
     <View style={styles.container}>
       <Stack.Screen options={{ title: prod.nombre }} />
       <ScrollView>
-        <View style={styles.imagenPlaceholder} />
+        <Image
+          source={{ uri: prod.imagen}}
+          style={styles.imagenPlaceholder}
+          contentFit="contain"/>
         <SeccionPrincipal producto={prod} />
         <SeccionIngredientes producto={prod} />
         <SeccionNutricional producto={prod} />
