@@ -1,5 +1,6 @@
 import { Stack, useLocalSearchParams } from "expo-router";
 import { StyleSheet, Text, View } from "react-native";
+import ProductosFiltrables from "@/components/ProductosListado";
 
 type EtiquetaParams = {
   nombre: string;
@@ -13,6 +14,7 @@ export default function EtiquetaScreen() {
       <Stack.Screen options={{ title: nombre }} />
       <Text style={styles.title}>Etiqueta</Text>
       <Text style={styles.value}>{nombre}</Text>
+      <ProductosFiltrables tipo="etiquetas" valor={nombre}/>
     </View>
   );
 }
@@ -20,8 +22,6 @@ export default function EtiquetaScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
     gap: 12,
     padding: 24,
   },

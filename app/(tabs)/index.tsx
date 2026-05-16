@@ -35,24 +35,28 @@ type ListItem = {
   nombre: string;
 }
 
-const CATEGORIA_COLORES: Record<string, [string, string]> = {
-  beverages: ["#4a90e2", "#2a61da"],
-  dairies: ["#fddd73", "#e7a740"],
-  snacks: ["#f062c5", "#b91d73"],
-  breakfasts: ["#eec614", "#f0911e"],
-  desserts: ["#a18cd1", "#fbc2eb"],
-  chocolates: ["#3a3a3a", "#1a1a1a"],
-  "biscuits-and-cakes": ["#c97b4b", "#8B5E3C"],
-  "cereals-and-potatoes": ["#56ab2f", "#a8e063"],
-  meals: ["#e04d4b", "#b71c1c"],
-  "plant-based-foods": ["#11998e", "#38ef7d"],
+const CATEGORIA_CONFIG: Record<string, { colores: [string, string]; icono: string }> = {
+  beverages: { colores: ["#4a90e2", "#2a61da"], icono: "coffee" },
+  dairies: { colores: ["#fddd73", "#e7a740"], icono: "tint" },
+  snacks: { colores: ["#f062c5", "#b91d73"], icono: "star" },
+  breakfasts: { colores: ["#eec614", "#f0911e"], icono: "sun-o" },
+  desserts: { colores: ["#a18cd1", "#fbc2eb"], icono: "birthday-cake" },
+  chocolates: { colores: ["#3a3a3a", "#1a1a1a"], icono: "heart" },
+  "biscuits-and-cakes": { colores: ["#c97b4b", "#8B5E3C"], icono: "cubes" },
+  "cereals-and-potatoes": { colores: ["#56ab2f", "#a8e063"], icono: "leaf" },
+  meals: { colores: ["#e04d4b", "#b71c1c"], icono: "cutlery" },
+  "plant-based-foods": { colores: ["#11998e", "#38ef7d"], icono: "pagelines" },
 };
+
 
 function CategoriasGrid() {
   const router = useRouter();
   return (
     <View style={styles.listBlock}>
-      <Text style={styles.listTitle}>Categories</Text>
+      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+        <Text style={styles.listTitle}>Categories</Text>
+        <Text style={{ color: "green" }}>View Library</Text>
+      </View>
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
         {categorias.map((item) => (
           <CategoriaCard
@@ -67,15 +71,16 @@ function CategoriasGrid() {
 }
 
 function CategoriaCard({ item, onPress }: { item: ListItem; onPress: () => void }) {
-  const colores = CATEGORIA_COLORES[item.id] ?? ["#ccc", "#aaa"];
-  return (
+  const config = CATEGORIA_CONFIG[item.id] ?? { colores: ["#ccc", "#aaa"], icono: "question"};
+  return (  
     <Pressable style={styles.card} onPress={onPress}>
       <LinearGradient
-        colors={colores}
+        colors={config.colores}
         start={{ x: 0, y: 0 }}
         end={{ x: 0.5, y: 0.5 }}
         style={styles.gradiente}
       >
+        <FontAwesome name={config.icono as any} size={32} color="rgba(255,255,255,0.3)" style={{ position: "absolute", top: 12, right: 12 }} />
         <Text style={styles.cardText}>{item.nombre.charAt(0).toUpperCase() + item.nombre.slice(1)}</Text>
       </LinearGradient>
     </Pressable>
