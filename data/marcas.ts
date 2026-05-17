@@ -12,7 +12,6 @@ export const marcas: Marca[] = [
   { id: "kelloggs", nombre: "kelloggs", imagen: require("@/assets/images/marcas/kelloggs.png") },
   { id: "unilever", nombre: "unilever", imagen: require("@/assets/images/marcas/unilever.png") },
   { id: "mondelez", nombre: "mondelez", imagen: require("@/assets/images/marcas/mondelez.png") },
-  { id: "mars", nombre: "mars", imagen: require("@/assets/images/marcas/mars.png") },
   { id: "ferrero", nombre: "ferrero", imagen: require("@/assets/images/marcas/ferrero.png") },
-  { id: "lactalis", nombre: "lactalis", imagen: require("@/assets/images/marcas/lacteos.png") },
+  { id: "lactalis", nombre: "lactalis", imagen: require("@/assets/images/marcas/lactalis.png") },
 ];

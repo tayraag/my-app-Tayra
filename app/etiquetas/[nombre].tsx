@@ -11,9 +11,8 @@ export default function EtiquetaScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: nombre }} />
-      <Text style={styles.title}>Etiqueta</Text>
-      <Text style={styles.value}>{nombre}</Text>
+      <Stack.Screen options={{ title: nombre.charAt(0).toUpperCase() + nombre.slice(1) }} />
+      <Text style={styles.title}> {nombre.toUpperCase()}</Text>
       <ProductosFiltrables tipo="etiquetas" valor={nombre}/>
     </View>
   );
@@ -22,14 +21,14 @@ export default function EtiquetaScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    gap: 12,
-    padding: 24,
+    paddingTop: 20,
+    paddingHorizontal: 16,
+    paddingBottom: 20,
   },
   title: {
     fontSize: 28,
-    fontWeight: "700",
-  },
-  value: {
-    fontSize: 20,
+    fontWeight: "800",
+    letterSpacing: 1,
+    marginBottom: 4,
   },
 });

@@ -1,9 +1,10 @@
 import { productos, Producto } from "@/data/productos";
-import { useRouter, Stack, useLocalSearchParams } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { ROUTES } from "@/constants/routes";
 import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
+import { useState } from "react";
 
 type FichaParams = {
   id: string;
@@ -21,10 +22,7 @@ export default function FichaScreen() {
     <View style={styles.container}>
       <Stack.Screen options={{ title: prod.nombre }} />
       <ScrollView>
-        <Image
-          source={{ uri: prod.imagen}}
-          style={styles.imagenPlaceholder}
-          contentFit="contain"/>
+        <Image style={styles.imagenPlaceholder} source={prod.imagen} contentFit="cover" />
         <SeccionPrincipal producto={prod} />
         <SeccionIngredientes producto={prod} />
         <SeccionNutricional producto={prod} />
@@ -33,6 +31,19 @@ export default function FichaScreen() {
   );
 }
 
+const NUTRI_COLORES: Record<string, string> = {
+  A: "#2e7d32", B: "#8bc34a", C: "#fdd835", D: "#ff9800", E: "#f44336",
+};
+
+const NOVA_COLORES: Record<number, string> = {
+  1: "#2e7d32", 2: "#8bc34a", 3: "#ff9800", 4: "#f44336",
+};
+
+const ECO_COLORES: Record<string, string> = {
+  "A+": "#1b5e20", A: "#2e7d32", "B+": "#558b2f", B: "#8bc34a",
+  C: "#fdd835", D: "#ff9800", E: "#f44336",
+};
+
 function SeccionPrincipal({ producto } : { producto: Producto }){
   return (
     <View style={[styles.seccion, { marginTop: -40 }]}>
@@ -40,9 +51,15 @@ function SeccionPrincipal({ producto } : { producto: Producto }){
       <Text style={styles.marca}>{producto.marca.toUpperCase()}</Text>
       <Text style={styles.nombreProducto}>{producto.nombre}</Text>
       <View style = {{flexDirection: "row", gap: 8}}>
-        <Text style = {styles.scores}>Nutri - Score: {producto.nutriScore}</Text>
-        <Text style = {styles.scores}>Nova Group: {producto.novaGroup}</Text>
-        <Text style = {styles.scores}>Eco - Store: {producto.ecoScore}</Text>
+        <Text style={[styles.scores, { backgroundColor: NUTRI_COLORES[producto.nutriScore], color: "white", borderWidth: 0 }]}>
+          Nutri-Score: {producto.nutriScore}
+        </Text>
+        <Text style={[styles.scores, { backgroundColor: NOVA_COLORES[producto.novaGroup], color: "white", borderWidth: 0 }]}>
+          Nova: {producto.novaGroup}
+        </Text>
+        <Text style={[styles.scores, { backgroundColor: ECO_COLORES[producto.ecoScore] ?? "#ccc", color: "white", borderWidth: 0 }]}>
+          Eco-Score: {producto.ecoScore}
+        </Text>
       </View>
       <ValoresNutricionales producto={producto}/>
     </View>
@@ -52,11 +69,17 @@ function SeccionPrincipal({ producto } : { producto: Producto }){
 function SeccionIngredientes({ producto } : { producto: Producto }){
   return(
     <View style={styles.seccion}>
-      <Text style={styles.tituloSeccion}> Ingredientes</Text>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+        <FontAwesome name="list-alt" size={20} color="#2e7d32" />
+        <Text style={styles.tituloSeccion}>Ingredientes</Text>
+      </View>
       <Text>{producto.ingredientes}</Text>
-      <View>
-        <Text>Alergenos</Text>
-        <Text>{producto.alergenos}</Text>
+      <View style={styles.alergenoBox}>
+        <FontAwesome name="warning" size={16} color="#c62828" />
+        <View style={{ flex: 1 }}>
+          <Text style={styles.alergenoTitulo}>ALERGENOS</Text>
+          <Text style={styles.alergenoTexto}>{producto.alergenos}</Text>
+        </View>
       </View>
     </View>
   );
@@ -65,12 +88,15 @@ function SeccionIngredientes({ producto } : { producto: Producto }){
 function SeccionNutricional({ producto }: { producto: Producto }) {
   return (
     <View style={styles.seccion}>
-      <Text style={styles.tituloSeccion}> Valores Nutricional (100ml)</Text>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+        <FontAwesome name="bar-chart" size={20} color="#2e7d32" />
+        <Text style={styles.tituloSeccion}>Valores Nutricionales (100ml)</Text>
+      </View>
       <FilaValor label="Energía" valor={`${producto.energia} kJ`} />
       <FilaValor label="Grasa" valor={`${producto.grasa}g`} />
-      <FilaValor label="— saturadas" valor={`${producto.grasaSaturada}g`} />
-      <FilaValor label="Carbohidratos" valor={`${producto.carbohidratos}g`} />
-      <FilaValor label="— azúcares" valor={`${producto.azucares}g`} />
+      <FilaValor label="— of which saturates" valor={`${producto.grasaSaturada}g`} sub />
+      <FilaValor label="Carbohidratos" valor={`${producto.carbohidratos}g`} sub={false} />
+      <FilaValor label="— of which sugars" valor={`${producto.azucares}g`} sub />
       <FilaValor label="Fibra" valor={`${producto.fibra}g`} />
       <FilaValor label="Proteína" valor={`${producto.proteina}g`} />
       <FilaValor label="Sal" valor={`${producto.sal}g`} />
@@ -100,22 +126,27 @@ function ValorItem({ label, valor }: { label: string; valor: string }) {
   );
 }
 
-function FilaValor({ label, valor }: { label: string; valor: string }) {
+function FilaValor({ label, valor, sub = false }: { label: string; valor: string; sub?: boolean }) {
   return (
-    <View style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 8 }}>
-      <Text>{label}</Text>
-      <Text style={{ fontWeight: "700" }}>{valor}</Text>
+    <View style={styles.filaValor}>
+      <Text style={[styles.filaLabel, sub && styles.filaLabelSub]}>{label}</Text>
+      <Text style={[styles.filaValorText, sub && styles.filaValorSub]}>{valor}</Text>
     </View>
   );
 }
 
-function FavButton(){
-  const router = useRouter(); 
-  return(
-    <Pressable
-      onPress={() => router.push(ROUTES.TABS_FAVS)}
-      style={styles.floatFav}>
-      <FontAwesome name="heart" size={20} color="white" />
+function FavButton() {
+  const [favorito, setFavorito] = useState(false);
+  return (
+    <Pressable style={styles.floatFav} onPress={() => setFavorito(!favorito)}>
+      <LinearGradient
+        colors={favorito ? ["#e91e63", "#f44336"] : ["#aaa", "#888"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={styles.gradienteFav}
+      >
+        <FontAwesome name={favorito ? "heart" : "heart-o"} size={20} color="white" />
+      </LinearGradient>
     </Pressable>
   );
 }
@@ -138,10 +169,11 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: "500",
     letterSpacing: 1,
+    color: "green",
   },
   nombreProducto: {
-    fontSize: 22,
-    fontWeight: "700",
+    fontSize: 26,
+    fontWeight: "800",
   },
   tituloSeccion: {
     fontSize: 16,
@@ -159,15 +191,21 @@ const styles = StyleSheet.create({
   },
   valorItem: {
     alignItems: "center",
-    marginRight: 16,
-    minWidth: 60,
+    marginRight: 8,
+    minWidth: 70,
+    backgroundColor: "#e8f5e9",
+    borderRadius: 10,
+    padding: 10,
   },
   valorLabel: {
     fontSize: 10,
     fontWeight: "700",
+    color: "#2e7d32",
   },
   valorNumero: {
     fontSize: 14,
+    fontWeight: "600",
+    color: "#2e7d32",
   },
   imagenPlaceholder: {
     width: "100%",
@@ -180,13 +218,60 @@ const styles = StyleSheet.create({
     top: -20,
     right: 17,
     width: 44,
-    height: 46,
+    height: 44,
     borderRadius: 22,
-    backgroundColor: "#363636",
-    justifyContent: "center",
-    alignItems: "center",
+    overflow: "hidden",
     zIndex: 10,
     elevation: 10,
+  },
+  gradienteFav: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  alergenoBox: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 10,
+    backgroundColor: "#ffebee",
+    borderRadius: 10,
+    padding: 12,
+  },
+  alergenoTitulo: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: "#c62828",
+    letterSpacing: 0.5,
+  },
+  alergenoTexto: {
+    fontSize: 13,
+    color: "#c62828",
+    marginTop: 2,
+  },
+  filaValor: {
+  flexDirection: "row",
+  justifyContent: "space-between",
+  paddingVertical: 12,
+  borderBottomWidth: 1,
+  borderBottomColor: "#f0f0f0",
+  },
+  filaLabel: {
+    fontSize: 15,
+    color: "#333",
+  },
+  filaLabelSub: {
+    fontSize: 13,
+    fontStyle: "italic",
+    color: "#888",
+    paddingLeft: 8,
+  },
+  filaValorText: {
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  filaValorSub: {
+    fontWeight: "400",
+    color: "#888",
   },
 });
 

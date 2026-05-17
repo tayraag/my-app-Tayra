@@ -21,6 +21,7 @@ export default function ProductosFiltrables({ tipo, valor}: Props) {
   });
   return (
     <>
+      <Text style={styles.conteo}>{productosFiltrados.length} ITEMS FOUND</Text>
       <View style={styles.inputContainer}>
         <FontAwesome name="search" size={18} color="grey" />
         <TextInput
@@ -33,11 +34,31 @@ export default function ProductosFiltrables({ tipo, valor}: Props) {
         data={productosFiltrados}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <ProductoItem producto={item} />}
-        ListEmptyComponent={<Text>No hay productos</Text>}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        ListEmptyComponent={<Text style={{ textAlign: "center", marginTop: 40, color: "#888" }}>No hay productos</Text>}
       />
     </>
   );
 }
+
+const NUTRI_COLORES: Record<string, string> = {
+  A: "#2e7d32",
+  B: "#8bc34a",
+  C: "#fdd835",
+  D: "#ff9800",
+  E: "#f44336",
+};
+
+const ECO_COLORES: Record<string, string> = {
+  "A+": "#1b5e20",
+  A: "#2e7d32",
+  "B+": "#558b2f",
+  B: "#8bc34a",
+  C: "#fdd835",
+  D: "#ff9800",
+  E: "#f44336",
+};
 
 function ProductoItem({ producto }: { producto: Producto }) {
   const router = useRouter();
@@ -45,25 +66,27 @@ function ProductoItem({ producto }: { producto: Producto }) {
   return (
     <Pressable onPress={() => router.push(fichaShowRoute(producto.id))}>
       <View style={styles.item}>
-        <Image
-          source={{ uri: producto.imagen }}
-          style={styles.imagenPlaceholder}
-          contentFit="contain"/>
+        <Image style={styles.imagenPlaceholder} source={producto.imagen} contentFit="cover" />
         <View style={styles.info}>
           <Text style={styles.nombre}>{producto.nombre}</Text>
           <Text style={styles.marca}>{producto.marca.toUpperCase()}</Text>
           <View style={styles.scores}>
-            <Text style={styles.nutri}>NUTRI-SCORE {producto.nutriScore}</Text>
-            <Text style={styles.eco}>ECO-SCORE {producto.ecoScore}</Text>
+            <Text style={[styles.nutri, { backgroundColor: NUTRI_COLORES[producto.nutriScore] }]}>
+              NUTRI-SCORE {producto.nutriScore}
+            </Text>
+            <Text style={[styles.eco, { backgroundColor: ECO_COLORES[producto.ecoScore] ?? "#ccc" }]}>
+              ECO-SCORE {producto.ecoScore}
+            </Text>
           </View>
         </View>
+        <FontAwesome name="chevron-right" size={20} color="#727272" />
       </View>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
-     inputContainer: {
+    inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#c7c7c7",
@@ -79,10 +102,11 @@ const styles = StyleSheet.create({
   },
   item: {
     flexDirection: "row",
+    alignItems: "center",
     gap: 12,
     padding: 16,
     marginHorizontal: 16,
-    marginTop: 12,
+    marginBottom: 12,
     borderRadius: 12,
     backgroundColor: "#fff",
     shadowColor: "#000",
@@ -115,8 +139,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "#ccc",
+    color: "white",
   },
   eco: {
     fontSize: 11,
@@ -124,13 +147,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     borderRadius: 6,
-    borderWidth: 1,
-    borderColor: "#ccc",
+    color: "white",
   },
   imagenPlaceholder: {
     width: 80,
     height: 80,
     backgroundColor: "#e0e0e0",
     borderRadius: 8,
+  },
+  conteo: {
+    fontSize: 12,
+    fontWeight: "600",
+    letterSpacing: 1,
+    paddingHorizontal: 16,
+    color: "#888",
   },
 });
