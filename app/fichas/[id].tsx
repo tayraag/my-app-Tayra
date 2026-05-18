@@ -1,10 +1,10 @@
-import { productos, Producto } from "@/data/productos";
-import { Stack, useLocalSearchParams } from "expo-router";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Producto, productos } from "@/data/productos";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
+import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 
 type FichaParams = {
   id: string;
@@ -22,7 +22,11 @@ export default function FichaScreen() {
     <View style={styles.container}>
       <Stack.Screen options={{ title: prod.nombre }} />
       <ScrollView>
-        <Image style={styles.imagenPlaceholder} source={prod.imagen} contentFit="cover" />
+        <Image
+          style={styles.imagenPlaceholder}
+          source={prod.imagen}
+          contentFit="cover"
+        />
         <SeccionPrincipal producto={prod} />
         <SeccionIngredientes producto={prod} />
         <SeccionNutricional producto={prod} />
@@ -32,42 +36,81 @@ export default function FichaScreen() {
 }
 
 const NUTRI_COLORES: Record<string, string> = {
-  A: "#2e7d32", B: "#8bc34a", C: "#fdd835", D: "#ff9800", E: "#f44336",
+  A: "#2e7d32",
+  B: "#8bc34a",
+  C: "#fdd835",
+  D: "#ff9800",
+  E: "#f44336",
 };
 
 const NOVA_COLORES: Record<number, string> = {
-  1: "#2e7d32", 2: "#8bc34a", 3: "#ff9800", 4: "#f44336",
+  1: "#2e7d32",
+  2: "#8bc34a",
+  3: "#ff9800",
+  4: "#f44336",
 };
 
 const ECO_COLORES: Record<string, string> = {
-  "A+": "#1b5e20", A: "#2e7d32", "B+": "#558b2f", B: "#8bc34a",
-  C: "#fdd835", D: "#ff9800", E: "#f44336",
+  "A+": "#1b5e20",
+  A: "#2e7d32",
+  "B+": "#558b2f",
+  B: "#8bc34a",
+  C: "#fdd835",
+  D: "#ff9800",
+  E: "#f44336",
 };
 
-function SeccionPrincipal({ producto } : { producto: Producto }){
+function SeccionPrincipal({ producto }: { producto: Producto }) {
   return (
     <View style={[styles.seccion, { marginTop: -40 }]}>
       <FavButton />
       <Text style={styles.marca}>{producto.marca.toUpperCase()}</Text>
       <Text style={styles.nombreProducto}>{producto.nombre}</Text>
-      <View style = {{flexDirection: "row", gap: 8}}>
-        <Text style={[styles.scores, { backgroundColor: NUTRI_COLORES[producto.nutriScore], color: "white", borderWidth: 0 }]}>
+      <View style={{ flexDirection: "row", gap: 8 }}>
+        <Text
+          style={[
+            styles.scores,
+            {
+              backgroundColor: NUTRI_COLORES[producto.nutriScore],
+              color: "white",
+              borderWidth: 0,
+            },
+          ]}
+        >
           Nutri-Score: {producto.nutriScore}
         </Text>
-        <Text style={[styles.scores, { backgroundColor: NOVA_COLORES[producto.novaGroup], color: "white", borderWidth: 0 }]}>
+        <Text
+          style={[
+            styles.scores,
+            {
+              backgroundColor: NOVA_COLORES[producto.novaGroup],
+              color: "white",
+              borderWidth: 0,
+            },
+          ]}
+        >
           Nova: {producto.novaGroup}
         </Text>
-        <Text style={[styles.scores, { backgroundColor: ECO_COLORES[producto.ecoScore] ?? "#ccc", color: "white", borderWidth: 0 }]}>
+        <Text
+          style={[
+            styles.scores,
+            {
+              backgroundColor: ECO_COLORES[producto.ecoScore] ?? "#ccc",
+              color: "white",
+              borderWidth: 0,
+            },
+          ]}
+        >
           Eco-Score: {producto.ecoScore}
         </Text>
       </View>
-      <ValoresNutricionales producto={producto}/>
+      <ValoresNutricionales producto={producto} />
     </View>
   );
 }
 
-function SeccionIngredientes({ producto } : { producto: Producto }){
-  return(
+function SeccionIngredientes({ producto }: { producto: Producto }) {
+  return (
     <View style={styles.seccion}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
         <FontAwesome name="list-alt" size={20} color="#2e7d32" />
@@ -94,9 +137,21 @@ function SeccionNutricional({ producto }: { producto: Producto }) {
       </View>
       <FilaValor label="Energía" valor={`${producto.energia} kJ`} />
       <FilaValor label="Grasa" valor={`${producto.grasa}g`} />
-      <FilaValor label="— of which saturates" valor={`${producto.grasaSaturada}g`} sub />
-      <FilaValor label="Carbohidratos" valor={`${producto.carbohidratos}g`} sub={false} />
-      <FilaValor label="— of which sugars" valor={`${producto.azucares}g`} sub />
+      <FilaValor
+        label="  — of which saturates"
+        valor={`${producto.grasaSaturada}g`}
+        sub
+      />
+      <FilaValor
+        label="Carbohidratos"
+        valor={`${producto.carbohidratos}g`}
+        sub={false}
+      />
+      <FilaValor
+        label="  — of which sugars"
+        valor={`${producto.azucares}g`}
+        sub
+      />
       <FilaValor label="Fibra" valor={`${producto.fibra}g`} />
       <FilaValor label="Proteína" valor={`${producto.proteina}g`} />
       <FilaValor label="Sal" valor={`${producto.sal}g`} />
@@ -126,11 +181,23 @@ function ValorItem({ label, valor }: { label: string; valor: string }) {
   );
 }
 
-function FilaValor({ label, valor, sub = false }: { label: string; valor: string; sub?: boolean }) {
+function FilaValor({
+  label,
+  valor,
+  sub = false,
+}: {
+  label: string;
+  valor: string;
+  sub?: boolean;
+}) {
   return (
     <View style={styles.filaValor}>
-      <Text style={[styles.filaLabel, sub && styles.filaLabelSub]}>{label}</Text>
-      <Text style={[styles.filaValorText, sub && styles.filaValorSub]}>{valor}</Text>
+      <Text style={[styles.filaLabel, sub && styles.filaLabelSub]}>
+        {label}
+      </Text>
+      <Text style={[styles.filaValorText, sub && styles.filaValorSub]}>
+        {valor}
+      </Text>
     </View>
   );
 }
@@ -145,7 +212,11 @@ function FavButton() {
         end={{ x: 1, y: 1 }}
         style={styles.gradienteFav}
       >
-        <FontAwesome name={favorito ? "heart" : "heart-o"} size={20} color="white" />
+        <FontAwesome
+          name={favorito ? "heart" : "heart-o"}
+          size={20}
+          color="white"
+        />
       </LinearGradient>
     </Pressable>
   );
@@ -249,11 +320,11 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   filaValor: {
-  flexDirection: "row",
-  justifyContent: "space-between",
-  paddingVertical: 12,
-  borderBottomWidth: 1,
-  borderBottomColor: "#f0f0f0",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "#f0f0f0",
   },
   filaLabel: {
     fontSize: 15,
@@ -263,7 +334,7 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontStyle: "italic",
     color: "#888",
-    paddingLeft: 8,
+    paddingLeft: 24,
   },
   filaValorText: {
     fontSize: 15,
@@ -274,4 +345,3 @@ const styles = StyleSheet.create({
     color: "#888",
   },
 });
-

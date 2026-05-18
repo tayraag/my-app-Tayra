@@ -1,12 +1,12 @@
+import { buildRoute, ROUTES } from "@/constants/routes";
 import { categorias } from "@/data/categorias";
 import { etiquetas } from "@/data/etiquetas";
 import { marcas } from "@/data/marcas";
-import { buildRoute, ROUTES } from "@/constants/routes";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Image } from "expo-image";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { LinearGradient } from "expo-linear-gradient";
-import { Image } from "expo-image";
 import "react-native-reanimated";
 
 export default function IndexScreen() {
@@ -14,18 +14,22 @@ export default function IndexScreen() {
     <View style={{ flex: 1 }}>
       <ScrollView contentContainerStyle={styles.container}>
         <View style={{ width: "100%", gap: 8 }}>
-          <Text style={{ fontSize: 12, color: "green", letterSpacing: 1.5 }}> CURATED FLAVORS </Text>
+          <Text style={{ fontSize: 12, color: "green", letterSpacing: 1.5 }}>
+            CURATED FLAVORS
+          </Text>
           <Text style={{ fontSize: 36, fontWeight: "bold" }}>
             The art of{" "}
-            <Text style={{ color: "green", fontStyle: "italic" }}>conscious</Text>
-            {" "}discovery.
+            <Text style={{ color: "green", fontStyle: "italic" }}>
+              conscious
+            </Text>{" "}
+            discovery.
           </Text>
         </View>
-        <CategoriasGrid/>
-        <EtiquetasLista/>
-        <MarcasScroll/>
+        <CategoriasGrid />
+        <EtiquetasLista />
+        <MarcasScroll />
       </ScrollView>
-      <ButtonSearch/>
+      <ButtonSearch />
     </View>
   );
 }
@@ -33,9 +37,12 @@ export default function IndexScreen() {
 type ListItem = {
   id: string;
   nombre: string;
-}
+};
 
-const CATEGORIA_CONFIG: Record<string, { colores: [string, string]; icono: string }> = {
+const CATEGORIA_CONFIG: Record<
+  string,
+  { colores: [string, string]; icono: string }
+> = {
   beverages: { colores: ["#4a90e2", "#2a61da"], icono: "coffee" },
   dairies: { colores: ["#fddd73", "#e7a740"], icono: "tint" },
   snacks: { colores: ["#f062c5", "#b91d73"], icono: "star" },
@@ -48,12 +55,17 @@ const CATEGORIA_CONFIG: Record<string, { colores: [string, string]; icono: strin
   "plant-based-foods": { colores: ["#11998e", "#38ef7d"], icono: "pagelines" },
 };
 
-
 function CategoriasGrid() {
   const router = useRouter();
   return (
     <View style={styles.listBlock}>
-      <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <Text style={styles.listTitle}>Categories</Text>
         <Text style={{ color: "green" }}>View Library</Text>
       </View>
@@ -62,7 +74,9 @@ function CategoriasGrid() {
           <CategoriaCard
             key={item.id}
             item={item}
-            onPress={() => router.push(buildRoute(ROUTES.CATEGORIA, { nombre: item.id }))}
+            onPress={() =>
+              router.push(buildRoute(ROUTES.CATEGORIA, { nombre: item.id }))
+            }
           />
         ))}
       </View>
@@ -70,9 +84,18 @@ function CategoriasGrid() {
   );
 }
 
-function CategoriaCard({ item, onPress }: { item: ListItem; onPress: () => void }) {
-  const config = CATEGORIA_CONFIG[item.id] ?? { colores: ["#ccc", "#aaa"], icono: "question"};
-  return (  
+function CategoriaCard({
+  item,
+  onPress,
+}: {
+  item: ListItem;
+  onPress: () => void;
+}) {
+  const config = CATEGORIA_CONFIG[item.id] ?? {
+    colores: ["#ccc", "#aaa"],
+    icono: "question",
+  };
+  return (
     <Pressable style={styles.card} onPress={onPress}>
       <LinearGradient
         colors={config.colores}
@@ -80,8 +103,15 @@ function CategoriaCard({ item, onPress }: { item: ListItem; onPress: () => void 
         end={{ x: 0.5, y: 0.5 }}
         style={styles.gradiente}
       >
-        <FontAwesome name={config.icono as any} size={32} color="rgba(255,255,255,0.3)" style={{ position: "absolute", top: 12, right: 12 }} />
-        <Text style={styles.cardText}>{item.nombre.charAt(0).toUpperCase() + item.nombre.slice(1)}</Text>
+        <FontAwesome
+          name={config.icono as any}
+          size={32}
+          color="rgba(255,255,255,0.3)"
+          style={{ position: "absolute", top: 12, right: 12 }}
+        />
+        <Text style={styles.cardText}>
+          {item.nombre.charAt(0).toUpperCase() + item.nombre.slice(1)}
+        </Text>
       </LinearGradient>
     </Pressable>
   );
@@ -92,9 +122,11 @@ function MarcasScroll() {
   return (
     <View style={styles.listBlock}>
       <Text style={styles.listTitle}>Global Brands</Text>
-      <Text style={{fontSize: 14, marginTop: -10 }}>Explored through the lens of quality.</Text>
-      <ScrollView 
-        horizontal 
+      <Text style={{ fontSize: 14, marginTop: -10, paddingHorizontal: 2 }}>
+        Explored through the lens of quality.
+      </Text>
+      <ScrollView
+        horizontal
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ paddingVertical: 8, paddingHorizontal: 4 }}
         style={{ backgroundColor: "transparent" }}
@@ -103,10 +135,19 @@ function MarcasScroll() {
           <Pressable
             key={item.id}
             style={styles.marcaCard}
-            onPress={() => router.push(buildRoute(ROUTES.MARCA, { nombre: item.id }))}
+            onPress={() =>
+              router.push(buildRoute(ROUTES.MARCA, { nombre: item.id }))
+            }
           >
-            <Image style={styles.imagenPlaceholder} source={item.imagen} contentFit="cover" />
-            <Text style={styles.marcaText}> {item.nombre.charAt(0).toUpperCase() + item.nombre.slice(1)}</Text>
+            <Image
+              style={styles.imagenPlaceholder}
+              source={item.imagen}
+              contentFit="cover"
+            />
+            <Text style={styles.marcaText}>
+              {" "}
+              {item.nombre.charAt(0).toUpperCase() + item.nombre.slice(1)}
+            </Text>
           </Pressable>
         ))}
       </ScrollView>
@@ -123,10 +164,14 @@ function EtiquetasLista() {
         {etiquetas.map((item) => (
           <Pressable
             key={item.id}
-            onPress={() =>  router.push(buildRoute(ROUTES.ETIQUETA, {nombre: item.id}))}
+            onPress={() =>
+              router.push(buildRoute(ROUTES.ETIQUETA, { nombre: item.id }))
+            }
             style={styles.itemButton}
           >
-            <Text style={styles.itemText}>{item.nombre.charAt(0).toUpperCase() + item.nombre.slice(1)}</Text>
+            <Text style={styles.itemText}>
+              {item.nombre.charAt(0).toUpperCase() + item.nombre.slice(1)}
+            </Text>
           </Pressable>
         ))}
       </View>
@@ -137,7 +182,10 @@ function EtiquetasLista() {
 function ButtonSearch() {
   const router = useRouter();
   return (
-    <Pressable onPress={() => router.push(ROUTES.TABS_BUSCAR)} style={styles.floatButton}>
+    <Pressable
+      onPress={() => router.push(ROUTES.TABS_BUSCAR)}
+      style={styles.floatButton}
+    >
       <LinearGradient
         colors={["#1b5500", "#00b646"]}
         start={{ x: 0, y: 0 }}
@@ -161,7 +209,6 @@ const styles = StyleSheet.create({
   },
   listBlock: {
     width: "100%",
-    maxWidth: 420,
     gap: 12,
   },
   listTitle: {
@@ -195,7 +242,7 @@ const styles = StyleSheet.create({
     color: "white",
   },
   marcaCard: {
-    width: 115,
+    width: 100,
     height: 130,
     borderRadius: 16,
     backgroundColor: "#fff",
@@ -210,14 +257,14 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   imagenPlaceholder: {
-    width: 56,
-    height: 56,
+    width: 52,
+    height: 52,
     backgroundColor: "#f0f0f0",
     borderRadius: 28,
   },
   marcaText: {
-    fontSize: 16,
-    fontWeight: "600",
+    fontSize: 14,
+    fontWeight: "700",
   },
   floatButton: {
     position: "absolute",

@@ -1,10 +1,17 @@
-import { useRouter} from "expo-router";
-import { Pressable, TextInput, FlatList, StyleSheet, Text, View } from "react-native";
-import { productos, Producto } from "@/data/productos";
-import { useState } from "react";
 import { fichaShowRoute } from "@/constants/routes";
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { Producto, productos } from "@/data/productos";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Image } from "expo-image";
+import { useRouter } from "expo-router";
+import { useState } from "react";
+import {
+  FlatList,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 
 type FiltroTipo = "categoria" | "marca" | "etiquetas";
 
@@ -13,14 +20,18 @@ type Props = {
   valor: string;
 };
 
-export default function ProductosFiltrables({ tipo, valor}: Props) {
+export default function ProductosFiltrables({ tipo, valor }: Props) {
   const [busqueda, setBusqueda] = useState("");
-    const productosFiltrados = productos.filter((p) => {
-        const matchFiltro = tipo === "etiquetas" ? p.etiquetas.includes(valor) : p[tipo] === valor;
-    return matchFiltro && p.nombre.toLowerCase().includes(busqueda.toLowerCase());
+  const productosFiltrados = productos.filter((p) => {
+    const matchFiltro =
+      tipo === "etiquetas" ? p.etiquetas.includes(valor) : p[tipo] === valor;
+    return (
+      matchFiltro && p.nombre.toLowerCase().includes(busqueda.toLowerCase())
+    );
   });
   return (
     <>
+      <Text style={styles.title}> {valor.toUpperCase()}</Text>
       <Text style={styles.conteo}>{productosFiltrados.length} ITEMS FOUND</Text>
       <View style={styles.inputContainer}>
         <FontAwesome name="search" size={18} color="grey" />
@@ -36,7 +47,11 @@ export default function ProductosFiltrables({ tipo, valor}: Props) {
         renderItem={({ item }) => <ProductoItem producto={item} />}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 20 }}
-        ListEmptyComponent={<Text style={{ textAlign: "center", marginTop: 40, color: "#888" }}>No hay productos</Text>}
+        ListEmptyComponent={
+          <Text style={{ textAlign: "center", marginTop: 40, color: "#888" }}>
+            No hay productos
+          </Text>
+        }
       />
     </>
   );
@@ -62,19 +77,33 @@ const ECO_COLORES: Record<string, string> = {
 
 function ProductoItem({ producto }: { producto: Producto }) {
   const router = useRouter();
-  
+
   return (
     <Pressable onPress={() => router.push(fichaShowRoute(producto.id))}>
       <View style={styles.item}>
-        <Image style={styles.imagenPlaceholder} source={producto.imagen} contentFit="cover" />
+        <Image
+          style={styles.imagenPlaceholder}
+          source={producto.imagen}
+          contentFit="cover"
+        />
         <View style={styles.info}>
           <Text style={styles.nombre}>{producto.nombre}</Text>
           <Text style={styles.marca}>{producto.marca.toUpperCase()}</Text>
           <View style={styles.scores}>
-            <Text style={[styles.nutri, { backgroundColor: NUTRI_COLORES[producto.nutriScore] }]}>
+            <Text
+              style={[
+                styles.nutri,
+                { backgroundColor: NUTRI_COLORES[producto.nutriScore] },
+              ]}
+            >
               NUTRI-SCORE {producto.nutriScore}
             </Text>
-            <Text style={[styles.eco, { backgroundColor: ECO_COLORES[producto.ecoScore] ?? "#ccc" }]}>
+            <Text
+              style={[
+                styles.eco,
+                { backgroundColor: ECO_COLORES[producto.ecoScore] ?? "#ccc" },
+              ]}
+            >
               ECO-SCORE {producto.ecoScore}
             </Text>
           </View>
@@ -86,7 +115,21 @@ function ProductoItem({ producto }: { producto: Producto }) {
 }
 
 const styles = StyleSheet.create({
-    inputContainer: {
+  title: {
+    fontSize: 28,
+    fontWeight: "800",
+    letterSpacing: 1,
+    marginBottom: 4,
+    paddingHorizontal: 6,
+  },
+  conteo: {
+    fontSize: 12,
+    fontWeight: "600",
+    letterSpacing: 1,
+    paddingHorizontal: 16,
+    color: "#888",
+  },
+  inputContainer: {
     flexDirection: "row",
     alignItems: "center",
     backgroundColor: "#c7c7c7",
@@ -154,12 +197,5 @@ const styles = StyleSheet.create({
     height: 80,
     backgroundColor: "#e0e0e0",
     borderRadius: 8,
-  },
-  conteo: {
-    fontSize: 12,
-    fontWeight: "600",
-    letterSpacing: 1,
-    paddingHorizontal: 16,
-    color: "#888",
   },
 });
