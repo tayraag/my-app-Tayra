@@ -37,7 +37,7 @@ export default function ProductosFiltrables({ tipo, valor }: Props) {
         <FontAwesome name="search" size={18} color="grey" />
         <TextInput
           style={styles.input}
-          placeholder="Buscar productos..."
+          placeholder="Search products..."
           onChangeText={setBusqueda}
         />
       </View>
@@ -181,7 +181,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 6,
+    borderRadius: 1,
     color: "white",
   },
   eco: {
@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     paddingHorizontal: 8,
     paddingVertical: 4,
-    borderRadius: 6,
+    borderRadius: 1,
     color: "white",
   },
   imagenPlaceholder: {

@@ -66,43 +66,10 @@ function SeccionPrincipal({ producto }: { producto: Producto }) {
       <FavButton />
       <Text style={styles.marca}>{producto.marca.toUpperCase()}</Text>
       <Text style={styles.nombreProducto}>{producto.nombre}</Text>
-      <View style={{ flexDirection: "row", gap: 8 }}>
-        <Text
-          style={[
-            styles.scores,
-            {
-              backgroundColor: NUTRI_COLORES[producto.nutriScore],
-              color: "white",
-              borderWidth: 0,
-            },
-          ]}
-        >
-          Nutri-Score: {producto.nutriScore}
-        </Text>
-        <Text
-          style={[
-            styles.scores,
-            {
-              backgroundColor: NOVA_COLORES[producto.novaGroup],
-              color: "white",
-              borderWidth: 0,
-            },
-          ]}
-        >
-          Nova: {producto.novaGroup}
-        </Text>
-        <Text
-          style={[
-            styles.scores,
-            {
-              backgroundColor: ECO_COLORES[producto.ecoScore] ?? "#ccc",
-              color: "white",
-              borderWidth: 0,
-            },
-          ]}
-        >
-          Eco-Score: {producto.ecoScore}
-        </Text>
+      <View style={{ flexDirection: "row", gap: 15, justifyContent: "center" }}>
+        <ScoreBox label={"NUTRI-\nSCORE"} valor={producto.nutriScore} color={NUTRI_COLORES[producto.nutriScore]} />
+        <ScoreBox label={"NOVA\nGROUP"} valor={producto.novaGroup} color={NOVA_COLORES[producto.novaGroup]} />
+        <ScoreBox label={"ECO-\nSCORE"} valor={producto.ecoScore} color={ECO_COLORES[producto.ecoScore] ?? "#ccc"} />
       </View>
       <ValoresNutricionales producto={producto} />
     </View>
@@ -111,16 +78,16 @@ function SeccionPrincipal({ producto }: { producto: Producto }) {
 
 function SeccionIngredientes({ producto }: { producto: Producto }) {
   return (
-    <View style={styles.seccion}>
+    <View style={[styles.seccion, { backgroundColor: "#f9f9f9" }]}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-        <FontAwesome name="list-alt" size={20} color="#2e7d32" />
-        <Text style={styles.tituloSeccion}>Ingredientes</Text>
+        <FontAwesome name="table" size={20} color="#2e7d32" />
+        <Text style={styles.tituloSeccion}>Ingredients</Text>
       </View>
-      <Text>{producto.ingredientes}</Text>
+      <Text style={{ lineHeight: 23, marginHorizontal: 6 }}>{producto.ingredientes}</Text>
       <View style={styles.alergenoBox}>
         <FontAwesome name="warning" size={16} color="#c62828" />
         <View style={{ flex: 1 }}>
-          <Text style={styles.alergenoTitulo}>ALERGENOS</Text>
+          <Text style={styles.alergenoTitulo}>ALLERGEN INFORMATION</Text>
           <Text style={styles.alergenoTexto}>{producto.alergenos}</Text>
         </View>
       </View>
@@ -133,27 +100,15 @@ function SeccionNutricional({ producto }: { producto: Producto }) {
     <View style={styles.seccion}>
       <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
         <FontAwesome name="bar-chart" size={20} color="#2e7d32" />
-        <Text style={styles.tituloSeccion}>Valores Nutricionales (100ml)</Text>
+        <Text style={styles.tituloSeccion}>Nutritional Values (per 100ml)</Text>
       </View>
-      <FilaValor label="Energía" valor={`${producto.energia} kJ`} />
-      <FilaValor label="Grasa" valor={`${producto.grasa}g`} />
-      <FilaValor
-        label="  — of which saturates"
-        valor={`${producto.grasaSaturada}g`}
-        sub
-      />
-      <FilaValor
-        label="Carbohidratos"
-        valor={`${producto.carbohidratos}g`}
-        sub={false}
-      />
-      <FilaValor
-        label="  — of which sugars"
-        valor={`${producto.azucares}g`}
-        sub
-      />
-      <FilaValor label="Fibra" valor={`${producto.fibra}g`} />
-      <FilaValor label="Proteína" valor={`${producto.proteina}g`} />
+      <FilaValor label="Energy" valor={`${producto.energia} kJ`} />
+      <FilaValor label="Fat" valor={`${producto.grasa}g`} />
+      <FilaValor label="  — of which saturates" valor={`${producto.grasaSaturada}g`} sub/>
+      <FilaValor label="Carbohydrate" valor={`${producto.carbohidratos}g`} sub={false}/>
+      <FilaValor label="  — of which sugars" valor={`${producto.azucares}g`} sub/>
+      <FilaValor label="Fibre" valor={`${producto.fibra}g`} />
+      <FilaValor label="Protein" valor={`${producto.proteina}g`} />
       <FilaValor label="Sal" valor={`${producto.sal}g`} />
     </View>
   );
@@ -162,12 +117,12 @@ function SeccionNutricional({ producto }: { producto: Producto }) {
 function ValoresNutricionales({ producto }: { producto: Producto }) {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-      <ValorItem label="Energía" valor={`${producto.energia} kJ`} />
-      <ValorItem label="Grasa" valor={`${producto.grasa}g`} />
-      <ValorItem label="Proteina" valor={`${producto.proteina}g`} />
-      <ValorItem label="Carbohidratos" valor={`${producto.carbohidratos}g`} />
-      <ValorItem label="Fibra" valor={`${producto.fibra}g`} />
-      <ValorItem label="Sal" valor={`${producto.sal}g`} />
+      <ValorItem label="ENERGY" valor={`${producto.energia} kJ`} />
+      <ValorItem label="FAT" valor={`${producto.grasa}g`} />
+      <ValorItem label="CARBOHYDRATE" valor={`${producto.carbohidratos}g`} />
+      <ValorItem label="FIBRE" valor={`${producto.fibra}g`} />
+      <ValorItem label="PROTEIN" valor={`${producto.proteina}g`} />
+      <ValorItem label="SAL" valor={`${producto.sal}g`} />
     </ScrollView>
   );
 }
@@ -181,15 +136,18 @@ function ValorItem({ label, valor }: { label: string; valor: string }) {
   );
 }
 
-function FilaValor({
-  label,
-  valor,
-  sub = false,
-}: {
-  label: string;
-  valor: string;
-  sub?: boolean;
-}) {
+function ScoreBox({ label, valor, color }: { label: string; valor: string | number; color: string }) {
+  return (
+    <View style={styles.scoreBox}>
+      <Text style={styles.scoreLabel}>{label}</Text>
+      <View style={[styles.scoreColorBox, { backgroundColor: color }]}>
+        <Text style={styles.scoreValor}>{valor}</Text>
+      </View>
+    </View>
+  );
+}
+
+function FilaValor({label, valor, sub = false}: { label: string; valor: string; sub?: boolean;}) {
   return (
     <View style={styles.filaValor}>
       <Text style={[styles.filaLabel, sub && styles.filaLabelSub]}>
@@ -233,7 +191,7 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 8,
     marginBottom: 15,
-    marginHorizontal: 16,
+    marginHorizontal: 26,
     backgroundColor: "#fff",
   },
   marca: {
@@ -251,22 +209,42 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     marginBottom: 4,
   },
-  scores: {
-    borderWidth: 1,
-    borderColor: "#ccc",
+  scoreBox: {
+    width: 80,
+    height: 82,
+    alignItems: "center",
+    backgroundColor: "#f5f5f5",
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+    gap: 4,
+  },
+  scoreLabel: {
+    fontSize: 9,
+    color: "#888",
+    fontWeight: "600",
+    letterSpacing: 0.5,
+    textAlign: "center",
+  },
+  scoreColorBox: {
+    width: 36,
+    height: 36,
     borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    fontWeight: "700",
-    fontSize: 13,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  scoreValor: {
+    fontSize: 20,
+    color: "white",
+    fontWeight: "800",
   },
   valorItem: {
     alignItems: "center",
-    marginRight: 8,
-    minWidth: 70,
-    backgroundColor: "#e8f5e9",
-    borderRadius: 10,
+    minWidth: 60,
+    backgroundColor: "#c7e0c9",
+    borderRadius: 3,
     padding: 10,
+    marginRight: 14,
   },
   valorLabel: {
     fontSize: 10,
@@ -324,11 +302,13 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#f0f0f0",
+    borderBottomColor: "#eeeded",
+    marginHorizontal: 6,
   },
   filaLabel: {
     fontSize: 15,
     color: "#333",
+    fontWeight: "500",
   },
   filaLabelSub: {
     fontSize: 13,
