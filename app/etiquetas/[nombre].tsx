@@ -12,7 +12,6 @@ export default function EtiquetaScreen() {
   return (
     <View style={styles.container}>
       <Stack.Screen options={{ title: nombre.charAt(0).toUpperCase() + nombre.slice(1) }} />
-      <Text style={styles.title}> {nombre.toUpperCase()}</Text>
       <ProductosFiltrables tipo="etiquetas" valor={nombre}/>
     </View>
   );
