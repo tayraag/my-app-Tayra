@@ -1,4 +1,4 @@
-import ProductosFiltrables from "@/components/ProductosListado";
+import ProductosFiltrables from "@/src/components/ProductosListado";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { StyleSheet, View } from "react-native";
 
@@ -25,11 +25,5 @@ const styles = StyleSheet.create({
     paddingTop: 20,
     paddingHorizontal: 16,
     paddingBottom: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "800",
-    letterSpacing: 1,
-    marginBottom: 4,
   },
 });

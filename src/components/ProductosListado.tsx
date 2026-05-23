@@ -1,5 +1,5 @@
-import { fichaShowRoute } from "@/constants/routes";
-import { Producto, productos } from "@/data/productos";
+import { fichaShowRoute } from "@/src/constants/routes";
+import { Producto, productos } from "@/src/data/productos";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";

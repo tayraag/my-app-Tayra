@@ -1,4 +1,4 @@
-import { Producto, productos } from "@/data/productos";
+import { Producto, productos } from "@/src/data/productos";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";

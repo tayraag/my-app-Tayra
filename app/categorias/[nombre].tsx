@@ -1,4 +1,4 @@
-import ProductosFiltrables from "@/components/ProductosListado";
+import ProductosFiltrables from "@/src/components/ProductosListado";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { StyleSheet, View } from "react-native";
 

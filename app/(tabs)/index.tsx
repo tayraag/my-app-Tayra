@@ -1,7 +1,7 @@
-import { buildRoute, ROUTES } from "@/constants/routes";
-import { categorias } from "@/data/categorias";
-import { etiquetas } from "@/data/etiquetas";
-import { marcas } from "@/data/marcas";
+import { buildRoute, ROUTES } from "@/src/constants/routes";
+import { categorias } from "@/src/data/categorias";
+import { etiquetas } from "@/src/data/etiquetas";
+import { marcas } from "@/src/data/marcas";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
