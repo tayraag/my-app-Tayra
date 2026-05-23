@@ -41,7 +41,7 @@ O escanea el código QR con **Expo Go** en tu teléfono.
 
 ## 📧 Contacto
 
-Tayra – [tayraag07@gmail.com](tayraag07@gmail.com)
+Tayra – [tayraag07@gmail.com](mailto:tayraag07@gmail.com)
 
 ---
 
