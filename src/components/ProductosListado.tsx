@@ -46,9 +46,9 @@ export default function ProductosFiltrables({ tipo, valor }: Props) {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <ProductoItem producto={item} />}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        contentContainerStyle={styles.listContent}
         ListEmptyComponent={
-          <Text style={{ textAlign: "center", marginTop: 40, color: "#888" }}>
+          <Text style={styles.emptyText}>
             No hay productos
           </Text>
         }
@@ -115,6 +115,14 @@ function ProductoItem({ producto }: { producto: Producto }) {
 }
 
 const styles = StyleSheet.create({
+  listContent: {
+    paddingBottom: 20,
+  },
+  emptyText: {
+    textAlign: "center",
+    marginTop: 40,
+    color: "#888",
+  },
   title: {
     fontSize: 28,
     fontWeight: "800",

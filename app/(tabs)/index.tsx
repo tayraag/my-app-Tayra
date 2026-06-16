@@ -11,17 +11,12 @@ import "react-native-reanimated";
 
 export default function IndexScreen() {
   return (
-    <View style={{ flex: 1 }}>
+    <View style={styles.screen}>
       <ScrollView contentContainerStyle={styles.container}>
-        <View style={{ width: "100%", gap: 8 }}>
-          <Text style={{ fontSize: 12, color: "green", letterSpacing: 1.5 }}>
-            CURATED FLAVORS
-          </Text>
-          <Text style={{ fontSize: 36, fontWeight: "bold" }}>
-            The art of{" "}
-            <Text style={{ color: "green", fontStyle: "italic" }}>
-              conscious
-            </Text>{" "}
+        <View style={styles.headerContainer}>
+          <Text style={styles.subtitle}>CURATED FLAVORS</Text>
+          <Text style={styles.title}>
+            The art of <Text style={styles.consciousText}>conscious</Text>{" "}
             discovery.
           </Text>
         </View>
@@ -59,17 +54,10 @@ function CategoriasGrid() {
   const router = useRouter();
   return (
     <View style={styles.listBlock}>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+      <View style={styles.listHeader}>
         <Text style={styles.listTitle}>Categories</Text>
-        <Text style={{ color: "green" }}>View Library</Text>
       </View>
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
+      <View style={styles.categoriesGrid}>
         {categorias.map((item) => (
           <CategoriaCard
             key={item.id}
@@ -107,7 +95,7 @@ function CategoriaCard({
           name={config.icono as any}
           size={32}
           color="rgba(255,255,255,0.3)"
-          style={{ position: "absolute", top: 12, right: 12 }}
+          style={styles.cardIcon}
         />
         <Text style={styles.cardText}>
           {item.nombre.charAt(0).toUpperCase() + item.nombre.slice(1)}
@@ -122,14 +110,14 @@ function MarcasScroll() {
   return (
     <View style={styles.listBlock}>
       <Text style={styles.listTitle}>Global Brands</Text>
-      <Text style={{ fontSize: 14, marginTop: -10, paddingHorizontal: 2 }}>
+      <Text style={styles.brandSubtitle}>
         Explored through the lens of quality.
       </Text>
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingVertical: 8, paddingHorizontal: 4 }}
-        style={{ backgroundColor: "transparent" }}
+        contentContainerStyle={styles.brandsScrollContent}
+        style={styles.brandsScroll}
       >
         {marcas.map((item) => (
           <Pressable
@@ -199,6 +187,53 @@ function ButtonSearch() {
 }
 
 const styles = StyleSheet.create({
+  screen: {
+    flex: 1,
+  },
+  headerContainer: {
+    width: "100%",
+    gap: 8,
+  },
+  subtitle: {
+    fontSize: 12,
+    color: "green",
+    letterSpacing: 1.5,
+  },
+  title: {
+    fontSize: 36,
+    fontWeight: "bold",
+  },
+  consciousText: {
+    color: "green",
+    fontStyle: "italic",
+  },
+  listHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  categoriesGrid: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 12,
+  },
+  cardIcon: {
+    position: "absolute",
+    top: 12,
+    right: 12,
+  },
+  brandSubtitle: {
+    fontSize: 14,
+    marginTop: -10,
+    paddingHorizontal: 2,
+  },
+  brandsScrollContent: {
+    paddingVertical: 8,
+    paddingHorizontal: 4,
+  },
+  brandsScroll: {
+    backgroundColor: "transparent",
+  },
   container: {
     flexDirection: "column",
     justifyContent: "center",

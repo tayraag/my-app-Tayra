@@ -62,11 +62,11 @@ const ECO_COLORES: Record<string, string> = {
 
 function SeccionPrincipal({ producto }: { producto: Producto }) {
   return (
-    <View style={[styles.seccion, { marginTop: -40 }]}>
+    <View style={[styles.seccion, styles.seccionPrincipalOffset]}>
       <FavButton />
       <Text style={styles.marca}>{producto.marca.toUpperCase()}</Text>
       <Text style={styles.nombreProducto}>{producto.nombre}</Text>
-      <View style={{ flexDirection: "row", gap: 15, justifyContent: "center" }}>
+      <View style={styles.scoresContainer}>
         <ScoreBox label={"NUTRI-\nSCORE"} valor={producto.nutriScore} color={NUTRI_COLORES[producto.nutriScore]} />
         <ScoreBox label={"NOVA\nGROUP"} valor={producto.novaGroup} color={NOVA_COLORES[producto.novaGroup]} />
         <ScoreBox label={"ECO-\nSCORE"} valor={producto.ecoScore} color={ECO_COLORES[producto.ecoScore] ?? "#ccc"} />
@@ -78,15 +78,15 @@ function SeccionPrincipal({ producto }: { producto: Producto }) {
 
 function SeccionIngredientes({ producto }: { producto: Producto }) {
   return (
-    <View style={[styles.seccion, { backgroundColor: "#f9f9f9" }]}>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+    <View style={[styles.seccion, styles.seccionIngredientesBg]}>
+      <View style={styles.seccionHeaderRow}>
         <FontAwesome name="table" size={20} color="#2e7d32" />
         <Text style={styles.tituloSeccion}>Ingredients</Text>
       </View>
-      <Text style={{ lineHeight: 23, marginHorizontal: 6 }}>{producto.ingredientes}</Text>
+      <Text style={styles.ingredientsText}>{producto.ingredientes}</Text>
       <View style={styles.alergenoBox}>
         <FontAwesome name="warning" size={16} color="#c62828" />
-        <View style={{ flex: 1 }}>
+        <View style={styles.alergenoInfo}>
           <Text style={styles.alergenoTitulo}>ALLERGEN INFORMATION</Text>
           <Text style={styles.alergenoTexto}>{producto.alergenos}</Text>
         </View>
@@ -95,21 +95,49 @@ function SeccionIngredientes({ producto }: { producto: Producto }) {
   );
 }
 
+type NutriItemConfig = {
+  key: keyof Pick<
+    Producto,
+    | "energia"
+    | "grasa"
+    | "grasaSaturada"
+    | "carbohidratos"
+    | "azucares"
+    | "fibra"
+    | "proteina"
+    | "sal"
+  >;
+  label: string;
+  unit: string;
+  sub?: boolean;
+};
+
+const SECCION_NUTRI_ITEMS: NutriItemConfig[] = [
+  { key: "energia", label: "Energy", unit: " kJ" },
+  { key: "grasa", label: "Fat", unit: "g" },
+  { key: "grasaSaturada", label: "  — of which saturates", unit: "g", sub: true },
+  { key: "carbohidratos", label: "Carbohydrate", unit: "g" },
+  { key: "azucares", label: "  — of which sugars", unit: "g", sub: true },
+  { key: "fibra", label: "Fibre", unit: "g" },
+  { key: "proteina", label: "Protein", unit: "g" },
+  { key: "sal", label: "Sal", unit: "g" },
+];
+
 function SeccionNutricional({ producto }: { producto: Producto }) {
   return (
     <View style={styles.seccion}>
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+      <View style={styles.seccionHeaderRow}>
         <FontAwesome name="bar-chart" size={20} color="#2e7d32" />
         <Text style={styles.tituloSeccion}>Nutritional Values (per 100ml)</Text>
       </View>
-      <FilaValor label="Energy" valor={`${producto.energia} kJ`} />
-      <FilaValor label="Fat" valor={`${producto.grasa}g`} />
-      <FilaValor label="  — of which saturates" valor={`${producto.grasaSaturada}g`} sub/>
-      <FilaValor label="Carbohydrate" valor={`${producto.carbohidratos}g`} sub={false}/>
-      <FilaValor label="  — of which sugars" valor={`${producto.azucares}g`} sub/>
-      <FilaValor label="Fibre" valor={`${producto.fibra}g`} />
-      <FilaValor label="Protein" valor={`${producto.proteina}g`} />
-      <FilaValor label="Sal" valor={`${producto.sal}g`} />
+      {SECCION_NUTRI_ITEMS.map((item) => (
+        <FilaValor
+          key={item.key}
+          label={item.label}
+          valor={`${producto[item.key]}${item.unit}`}
+          sub={item.sub}
+        />
+      ))}
     </View>
   );
 }
@@ -117,12 +145,13 @@ function SeccionNutricional({ producto }: { producto: Producto }) {
 function ValoresNutricionales({ producto }: { producto: Producto }) {
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-      <ValorItem label="ENERGY" valor={`${producto.energia} kJ`} />
-      <ValorItem label="FAT" valor={`${producto.grasa}g`} />
-      <ValorItem label="CARBOHYDRATE" valor={`${producto.carbohidratos}g`} />
-      <ValorItem label="FIBRE" valor={`${producto.fibra}g`} />
-      <ValorItem label="PROTEIN" valor={`${producto.proteina}g`} />
-      <ValorItem label="SAL" valor={`${producto.sal}g`} />
+      {SECCION_NUTRI_ITEMS.filter((item) => !item.sub).map((item) => (
+        <ValorItem
+          key={item.key}
+          label={item.label.toUpperCase()}
+          valor={`${producto[item.key]}${item.unit}`}
+        />
+      ))}
     </ScrollView>
   );
 }
@@ -181,6 +210,29 @@ function FavButton() {
 }
 
 const styles = StyleSheet.create({
+  seccionPrincipalOffset: {
+    marginTop: -40,
+  },
+  seccionIngredientesBg: {
+    backgroundColor: "#f9f9f9",
+  },
+  scoresContainer: {
+    flexDirection: "row",
+    gap: 15,
+    justifyContent: "center",
+  },
+  seccionHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  ingredientsText: {
+    lineHeight: 23,
+    marginHorizontal: 6,
+  },
+  alergenoInfo: {
+    flex: 1,
+  },
   container: {
     flex: 1,
   },
