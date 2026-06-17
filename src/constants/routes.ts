@@ -22,10 +22,21 @@ export const buildRoute = (route: AppRoute, params?: RouteParams): Href => {
   if (!params) {
     return route as Href;
   }
-  return {
-    pathname: route,
-    params,
-  } as Href;
+  let path = route as string;
+  const remainingParams: Record<string, string> = {};
+
+  for (const [key, value] of Object.entries(params)) {
+    if (value === undefined) continue;
+    const placeholder = `[${key}]`;
+    if (path.includes(placeholder)) {
+      path = path.replace(placeholder, encodeURIComponent(String(value)));
+    } else {
+      remainingParams[key] = String(value);
+    }
+  }
+
+  const queryParams = new URLSearchParams(remainingParams).toString();
+  return (queryParams ? `${path}?${queryParams}` : path) as Href;
 };
 
 export function fichaShowRoute(id: string) {

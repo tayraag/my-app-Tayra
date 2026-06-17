@@ -4,8 +4,10 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View, ActivityIndicator} from "react-native";
+import { obtenerFavorito } from "@/src/services/favoritos";
+import { useFavoritos } from "@/src/hooks/useFavoritos";
 
 type FichaParams = {
   id: string;
@@ -16,14 +18,38 @@ type FichaParams = {
 export default function FichaScreen() {
   const { id, tipoFiltro, valorFiltro } = useLocalSearchParams<FichaParams>();
   const queryClient = useQueryClient();
-  const cachedData: any = queryClient.getQueryData(["products", tipoFiltro, valorFiltro]);
-  const prod = cachedData?.pages?.flatMap((page: any) => page.products).find((p: any) => p.id === id);
+  const [prod, setProd] = useState<Producto | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  if (!prod) {
+  useEffect(() => {
+    async function cargarProducto() {
+      if (tipoFiltro === "favorito") {
+        const fav = await obtenerFavorito(id);
+        setProd(fav);
+      } else {
+        const cachedData: any = queryClient.getQueryData(["products", tipoFiltro, valorFiltro]);
+        const found = cachedData?.pages?.flatMap((page: any) => page.products).find((p: any) => p.id === id);
+        setProd(found || null);
+      }
+      setLoading(false);
+    }
+    cargarProducto();
+  }, [id, tipoFiltro, valorFiltro, queryClient]);
+
+  if (loading) {
     return (
       <View style={[styles.container, styles.center]}>
         <Stack.Screen options={{ title: "Cargando..." }} /> 
         <ActivityIndicator size="large" color="#0055ff" />
+      </View>
+    );
+  }
+
+  if (!prod) {
+    return (
+      <View style={[styles.container, styles.center]}>
+        <Stack.Screen options={{ title: "No encontrado" }} /> 
+        <Text style={{ marginTop: 20 }}>Producto no encontrado</Text>
       </View>
     );
   }
@@ -68,6 +94,11 @@ const ECO_COLORES: Record<string, string> = {
   C: "#fdd835",
   D: "#ff9800",
   E: "#f44336",
+  F: "#b71c1c",
+};
+
+const normalizarEcoScore = (score: string): string => {
+  return score.replace("-PLUS", "+").toUpperCase();
 };
 
 function SeccionPrincipal({ producto }: { producto: Producto }) {
@@ -84,11 +115,11 @@ function SeccionPrincipal({ producto }: { producto: Producto }) {
     ecoStr === "NOT-KNOWN" || 
     ecoStr === "N/A";
   const valorNutri = esNutriNoAplicable ? "N/A" : producto.nutriScore;
-  const valorEco = esEcoNoAplicable ? "N/A" : producto.ecoScore;
+  const valorEco = esEcoNoAplicable ? "N/A" : normalizarEcoScore(producto.ecoScore);
 
   return (
     <View style={[styles.seccion, styles.seccionPrincipalOffset]}>
-      <FavButton />
+      <FavButton producto={producto} />
       <Text style={styles.marca}>{producto.marca.toUpperCase()}</Text>
       <Text style={styles.nombreProducto}>{producto.nombre}</Text>
       <View style={styles.scoresContainer}>
@@ -105,7 +136,7 @@ function SeccionPrincipal({ producto }: { producto: Producto }) {
         <ScoreBox 
           label={"ECO-\nSCORE"} 
           valor={valorEco} 
-          color={esEcoNoAplicable ? "#727272" : (ECO_COLORES[producto.ecoScore] ?? "#727272")} 
+          color={esEcoNoAplicable ? "#727272" : (ECO_COLORES[valorEco] ?? "#727272")} 
         />
       </View>
       <ValoresNutricionales producto={producto} />
@@ -160,6 +191,13 @@ const SECCION_NUTRI_ITEMS: NutriItemConfig[] = [
   { key: "sal", label: "Sal", unit: "g" },
 ];
 
+const formatearValorNutricional = (valor: any): string => {
+  if (typeof valor === "number") {
+    return Number(valor.toFixed(2)).toString();
+  }
+  return String(valor);
+};
+
 function SeccionNutricional({ producto }: { producto: Producto }) {
   return (
     <View style={styles.seccion}>
@@ -171,7 +209,7 @@ function SeccionNutricional({ producto }: { producto: Producto }) {
         <FilaValor
           key={item.key}
           label={item.label}
-          valor={`${producto[item.key]}${item.unit}`}
+          valor={`${formatearValorNutricional(producto[item.key])}${item.unit}`}
           sub={item.sub}
         />
       ))}
@@ -186,7 +224,7 @@ function ValoresNutricionales({ producto }: { producto: Producto }) {
         <ValorItem
           key={item.key}
           label={item.label.toUpperCase()}
-          valor={`${producto[item.key]}${item.unit}`}
+          valor={`${formatearValorNutricional(producto[item.key])}${item.unit}`}
         />
       ))}
     </ScrollView>
@@ -203,11 +241,14 @@ function ValorItem({ label, valor }: { label: string; valor: string }) {
 }
 
 function ScoreBox({ label, valor, color }: { label: string; valor: string | number; color: string }) {
+  const valorStr = String(valor);
+  const fontSize = valorStr.length > 2 ? 13 : valorStr.length > 1 ? 15 : 20;
+
   return (
     <View style={styles.scoreBox}>
       <Text style={styles.scoreLabel}>{label}</Text>
       <View style={[styles.scoreColorBox, { backgroundColor: color }]}>
-        <Text style={styles.scoreValor}>{valor}</Text>
+        <Text style={[styles.scoreValor, { fontSize }]}>{valor}</Text>
       </View>
     </View>
   );
@@ -226,10 +267,20 @@ function FilaValor({label, valor, sub = false}: { label: string; valor: string; 
   );
 }
 
-function FavButton() {
-  const [favorito, setFavorito] = useState(false);
+function FavButton({ producto }: { producto: Producto }) {
+  const { esFavorito, guardarFavorito, eliminarFavorito } = useFavoritos();
+  const favorito = esFavorito(producto.id);
+
+  const handlePress = async () => {
+    if (favorito) {
+      await eliminarFavorito(producto.id);
+    } else {
+      await guardarFavorito(producto);
+    }
+  };
+
   return (
-    <Pressable style={styles.floatFav} onPress={() => setFavorito(!favorito)}>
+    <Pressable style={styles.floatFav} onPress={handlePress}>
       <LinearGradient
         colors={favorito ? ["#e91e63", "#f44336"] : ["#aaa", "#888"]}
         start={{ x: 0, y: 0 }}
@@ -320,11 +371,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   scoreColorBox: {
-    width: 36,
+    minWidth: 36,
     height: 36,
     borderRadius: 8,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: 4,
   },
   scoreValor: {
     fontSize: 20,

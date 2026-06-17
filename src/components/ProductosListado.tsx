@@ -2,7 +2,8 @@ import { Producto } from "@/src/data/productos";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useState, memo } from "react";
+import { buildRoute, ROUTES } from "@/src/constants/routes";
 import {
   FlatList,
   Pressable,
@@ -13,7 +14,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-type FiltroTipo = "categoria" | "marca" | "etiquetas";
+type FiltroTipo = "categoria" | "marca" | "etiquetas" | "favorito";
 
 type Props = {
   tipo: FiltroTipo;
@@ -53,6 +54,10 @@ export default function ProductosFiltrables({ tipo, valor = "", productos = [], 
         contentContainerStyle={styles.listContent}
         onEndReached={onEndReached}
         onEndReachedThreshold={0.5}  
+        initialNumToRender={10}
+        maxToRenderPerBatch={10}
+        windowSize={11}
+        removeClippedSubviews={true}
         ListFooterComponent={
           isFetchingNextPage ? (
             <View style={{ paddingVertical: 20, alignItems: "center" }}>
@@ -86,13 +91,14 @@ const ECO_COLORES: Record<string, string> = {
   C: "#fdd835",
   D: "#ff9800",
   E: "#f44336",
+  F: "#b71c1c",
 };
 
 const normalizarEcoScore = (score: string): string => {
   return score.replace("-PLUS", "+").toUpperCase();
 };
 
-function ProductoItem({ producto, tipo, valor }: { producto: Producto,  tipo: string; valor: string;  }) {
+const ProductoItem = memo(function ProductoItem({ producto, tipo, valor }: { producto: Producto,  tipo: string; valor: string;  }) {
   const router = useRouter();
   const marcaFormateada = producto.marca 
     ? producto.marca.toUpperCase() 
@@ -106,7 +112,7 @@ function ProductoItem({ producto, tipo, valor }: { producto: Producto,  tipo: st
   const textoEco = esEcoNoAplicable ? "N/A" : `ECO-SCORE ${ecoScore}`;
 
   return (
-    <Pressable onPress={() => router.push({pathname: "/fichas/[id]", params:{id: producto.id, tipoFiltro: tipo, valorFiltro: valor}})}>
+    <Pressable onPress={() => router.push(buildRoute(ROUTES.FICHA, { id: producto.id, tipoFiltro: tipo, valorFiltro: valor }))}>
       <View style={styles.item}>
         <Image
           style={styles.imagenPlaceholder}
@@ -141,7 +147,7 @@ function ProductoItem({ producto, tipo, valor }: { producto: Producto,  tipo: st
       </View>
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   listContent: {

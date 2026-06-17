@@ -1,7 +1,13 @@
 import ProductosFiltrables from "@/src/components/ProductosListado";
 import { useProductos } from "@/src/hooks/useProductos";
 import { Stack, useLocalSearchParams } from "expo-router";
-import { StyleSheet, View, ActivityIndicator, Text } from "react-native";
+import {
+  ActivityIndicator,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
 type EtiquetaParams = {
   nombre: string;
@@ -9,12 +15,21 @@ type EtiquetaParams = {
 
 export default function EtiquetaScreen() {
   const { nombre } = useLocalSearchParams<EtiquetaParams>();
-  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } = useProductos("etiquetas", nombre);
+  const {
+    data,
+    isLoading,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+    isFetching,
+  } = useProductos("etiquetas", nombre);
 
-  const productos = data?.pages.flatMap(page => page.products) ?? [];
+  const productos = data?.pages.flatMap((page) => page.products) ?? [];
   const totalItems = data?.pages[0]?.count ?? 0;
 
-  if (isLoading) {
+  if (isLoading || (isFetching && !isFetchingNextPage && productos.length === 0)) {
     return (
       <View style={[styles.container, styles.center]}>
         <Stack.Screen
@@ -25,14 +40,25 @@ export default function EtiquetaScreen() {
     );
   }
 
-  if (error) {
+  if (error && !isFetching) {
     return (
       <View style={[styles.container, styles.center]}>
         <Stack.Screen
           options={{ title: nombre.charAt(0).toUpperCase() + nombre.slice(1) }}
         />
         <Text style={styles.errorText}>⚠️ Error al cargar productos</Text>
-        <Text style={styles.errorDetails}>{error.message || "Intenta nuevamente"}</Text>
+        <Text style={styles.errorDetails}>
+          {error.message || "Intenta nuevamente"}
+        </Text>
+        <Pressable 
+          style={({ pressed }) => [
+            styles.retryButton,
+            pressed && styles.retryButtonPressed
+          ]} 
+          onPress={() => refetch()}
+        >
+          <Text style={styles.retryText}>Reintentar</Text>
+        </Pressable>
       </View>
     );
   }
@@ -42,13 +68,14 @@ export default function EtiquetaScreen() {
       <Stack.Screen
         options={{ title: nombre.charAt(0).toUpperCase() + nombre.slice(1) }}
       />
-      <ProductosFiltrables 
-        tipo="etiquetas" 
-        valor={nombre} 
-        productos={productos} 
+      <ProductosFiltrables
+        tipo="etiquetas"
+        valor={nombre}
+        productos={productos}
         totalItems={totalItems}
         onEndReached={() => hasNextPage && fetchNextPage()}
-        isFetchingNextPage={isFetchingNextPage}/>
+        isFetchingNextPage={isFetchingNextPage}
+      />
     </View>
   );
 }
@@ -74,5 +101,26 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#666",
     textAlign: "center",
+  },
+  retryButton: {
+    marginTop: 20,
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    backgroundColor: "green",
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+  },
+  retryText: {
+    color: "#fff",
+    fontWeight: "700",
+    fontSize: 15,
+  },
+  retryButtonPressed: {
+    backgroundColor: "#1b5e20",
+    transform: [{ scale: 0.98 }],
   },
 });

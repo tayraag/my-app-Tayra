@@ -1,9 +1,25 @@
-import {StyleSheet, Text, View } from 'react-native';
+import { useFavoritos } from "@/src/hooks/useFavoritos";
+import ProductosFiltrables from "@/src/components/ProductosListado";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 
 export default function FavoritesScreen() {
+  const { favoritos, isLoading } = useFavoritos();
+
+  if (isLoading) {
+    return (
+      <View style={[styles.container, styles.center]}>
+        <ActivityIndicator size="large" color="#0055ff" />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Favoritos</Text>
+      <ProductosFiltrables
+        tipo="favorito"
+        valor="favoritos"
+        productos={favoritos}
+      />
     </View>
   );
 }
@@ -11,15 +27,12 @@ export default function FavoritesScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: 45,
+    paddingHorizontal: 16,
+    paddingBottom: 20,
+  },
+  center: {
     justifyContent: "center",
     alignItems: "center",
-    padding: 24,
-    gap: 12,
-    backgroundColor: "#eff6ff",
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: "#1d4ed8",
   },
 });
