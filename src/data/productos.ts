@@ -1,5 +1,5 @@
-export type NutriScore = 'A' | 'B' | 'C' | 'D' | 'E';
-export type EcoScore = 'A+' | 'A' | 'B+' | 'B' | 'C' | 'D' | 'E';
+export type NutriScore = 'A' | 'B' | 'C' | 'D' | 'E' | 'NOT-APPLICABLE' | 'UNKNOWN' | 'N/A';
+export type EcoScore = 'A+' | 'A' | 'B+' | 'B' | 'C' | 'D' | 'E' | 'NOT-APPLICABLE' | 'UNKNOWN' | 'N/A';
 export type NovaGroup = 1 | 2 | 3 | 4;
 
 export type Producto = {

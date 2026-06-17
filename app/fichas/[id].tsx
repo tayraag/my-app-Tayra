@@ -1,21 +1,31 @@
-import { Producto, productos } from "@/src/data/productos";
+import { useQueryClient } from "@tanstack/react-query";
+import { Producto } from "@/src/data/productos";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View, ActivityIndicator} from "react-native";
 
 type FichaParams = {
   id: string;
+  tipoFiltro: string;
+  valorFiltro: string;
 };
 
 export default function FichaScreen() {
-  const { id } = useLocalSearchParams<FichaParams>();
-  const prod = productos.find((p) => p.id === id);
+  const { id, tipoFiltro, valorFiltro } = useLocalSearchParams<FichaParams>();
+  const queryClient = useQueryClient();
+  const cachedData: any = queryClient.getQueryData(["products", tipoFiltro, valorFiltro]);
+  const prod = cachedData?.pages?.flatMap((page: any) => page.products).find((p: any) => p.id === id);
 
   if (!prod) {
-    return <Text>Producto no encontrado</Text>;
+    return (
+      <View style={[styles.container, styles.center]}>
+        <Stack.Screen options={{ title: "Cargando..." }} /> 
+        <ActivityIndicator size="large" color="#0055ff" />
+      </View>
+    );
   }
 
   return (
@@ -61,15 +71,42 @@ const ECO_COLORES: Record<string, string> = {
 };
 
 function SeccionPrincipal({ producto }: { producto: Producto }) {
+  const nutriStr = String(producto.nutriScore).toUpperCase();
+  const ecoStr = String(producto.ecoScore).toUpperCase();
+  const esNutriNoAplicable = 
+    nutriStr === "NOT-APPLICABLE" || 
+    nutriStr === "UNKNOWN" || 
+    nutriStr === "NOT-KNOWN" || 
+    nutriStr === "N/A";
+  const esEcoNoAplicable = 
+    ecoStr === "NOT-APPLICABLE" || 
+    ecoStr === "UNKNOWN" || 
+    ecoStr === "NOT-KNOWN" || 
+    ecoStr === "N/A";
+  const valorNutri = esNutriNoAplicable ? "N/A" : producto.nutriScore;
+  const valorEco = esEcoNoAplicable ? "N/A" : producto.ecoScore;
+
   return (
     <View style={[styles.seccion, styles.seccionPrincipalOffset]}>
       <FavButton />
       <Text style={styles.marca}>{producto.marca.toUpperCase()}</Text>
       <Text style={styles.nombreProducto}>{producto.nombre}</Text>
       <View style={styles.scoresContainer}>
-        <ScoreBox label={"NUTRI-\nSCORE"} valor={producto.nutriScore} color={NUTRI_COLORES[producto.nutriScore]} />
-        <ScoreBox label={"NOVA\nGROUP"} valor={producto.novaGroup} color={NOVA_COLORES[producto.novaGroup]} />
-        <ScoreBox label={"ECO-\nSCORE"} valor={producto.ecoScore} color={ECO_COLORES[producto.ecoScore] ?? "#ccc"} />
+        <ScoreBox 
+          label={"NUTRI-\nSCORE"} 
+          valor={valorNutri} 
+          color={esNutriNoAplicable ? "#727272" : NUTRI_COLORES[producto.nutriScore]} 
+        />
+        <ScoreBox 
+          label={"NOVA\nGROUP"} 
+          valor={producto.novaGroup} 
+          color={NOVA_COLORES[producto.novaGroup]} 
+        />
+        <ScoreBox 
+          label={"ECO-\nSCORE"} 
+          valor={valorEco} 
+          color={esEcoNoAplicable ? "#727272" : (ECO_COLORES[producto.ecoScore] ?? "#727272")} 
+        />
       </View>
       <ValoresNutricionales producto={producto} />
     </View>
@@ -235,6 +272,10 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
+  },
+  center: {
+    justifyContent: "center",
+    alignItems: "center",
   },
   seccion: {
     borderWidth: 1,

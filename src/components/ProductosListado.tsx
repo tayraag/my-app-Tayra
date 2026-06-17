@@ -1,5 +1,4 @@
-import { fichaShowRoute } from "@/src/constants/routes";
-import { Producto, productos } from "@/src/data/productos";
+import { Producto } from "@/src/data/productos";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
@@ -11,6 +10,7 @@ import {
   Text,
   TextInput,
   View,
+  ActivityIndicator,
 } from "react-native";
 
 type FiltroTipo = "categoria" | "marca" | "etiquetas";
@@ -18,21 +18,25 @@ type FiltroTipo = "categoria" | "marca" | "etiquetas";
 type Props = {
   tipo: FiltroTipo;
   valor: string;
+  productos: Producto[];
+  totalItems?: number;
+  onEndReached?: () => void; 
+  isFetchingNextPage?: boolean;
 };
 
-export default function ProductosFiltrables({ tipo, valor }: Props) {
+export default function ProductosFiltrables({ tipo, valor = "", productos = [], totalItems, onEndReached, isFetchingNextPage }: Props) {
   const [busqueda, setBusqueda] = useState("");
   const productosFiltrados = productos.filter((p) => {
-    const matchFiltro =
-      tipo === "etiquetas" ? p.etiquetas.includes(valor) : p[tipo] === valor;
-    return (
-      matchFiltro && p.nombre.toLowerCase().includes(busqueda.toLowerCase())
-    );
+    const nombreProducto = p.nombre?.toLowerCase() ?? "";
+    return nombreProducto.includes(busqueda.toLowerCase());
   });
+  const conteoFinal = busqueda ? productosFiltrados.length : (totalItems ?? productosFiltrados.length);
+  const tituloMostrado = valor ? valor.toUpperCase() : "CARGANDO...";
+
   return (
     <>
-      <Text style={styles.title}> {valor.toUpperCase()}</Text>
-      <Text style={styles.conteo}>{productosFiltrados.length} ITEMS FOUND</Text>
+      <Text style={styles.title}> {tituloMostrado}</Text>
+      <Text style={styles.conteo}>{conteoFinal} ITEMS FOUND</Text>
       <View style={styles.inputContainer}>
         <FontAwesome name="search" size={18} color="grey" />
         <TextInput
@@ -44,9 +48,18 @@ export default function ProductosFiltrables({ tipo, valor }: Props) {
       <FlatList
         data={productosFiltrados}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ProductoItem producto={item} />}
+        renderItem={({ item }) => <ProductoItem producto={item} tipo={tipo} valor={valor} />}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
+        onEndReached={onEndReached}
+        onEndReachedThreshold={0.5}  
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <View style={{ paddingVertical: 20, alignItems: "center" }}>
+              <ActivityIndicator size="small" color="#0055ff" />
+            </View>
+          ) : null
+        }
         ListEmptyComponent={
           <Text style={styles.emptyText}>
             No hay productos
@@ -75,11 +88,25 @@ const ECO_COLORES: Record<string, string> = {
   E: "#f44336",
 };
 
-function ProductoItem({ producto }: { producto: Producto }) {
+const normalizarEcoScore = (score: string): string => {
+  return score.replace("-PLUS", "+").toUpperCase();
+};
+
+function ProductoItem({ producto, tipo, valor }: { producto: Producto,  tipo: string; valor: string;  }) {
   const router = useRouter();
+  const marcaFormateada = producto.marca 
+    ? producto.marca.toUpperCase() 
+    : "SIN MARCA";
+  const nutriScore: string = producto.nutriScore || "N/A";
+  const ecoScoreRaw: string = producto.ecoScore || "N/A";
+  const ecoScore = normalizarEcoScore(ecoScoreRaw);
+  const esNutriNoAplicable = nutriScore === "NOT-APPLICABLE" || nutriScore === "N/A" || nutriScore === "UNKNOWN";
+  const textoNutri = esNutriNoAplicable ? "N/A" : `NUTRI-SCORE ${nutriScore}`;
+  const esEcoNoAplicable = ecoScore === "NOT-APPLICABLE" || ecoScore === "N/A" || ecoScore === "UNKNOWN";
+  const textoEco = esEcoNoAplicable ? "N/A" : `ECO-SCORE ${ecoScore}`;
 
   return (
-    <Pressable onPress={() => router.push(fichaShowRoute(producto.id))}>
+    <Pressable onPress={() => router.push({pathname: "/fichas/[id]", params:{id: producto.id, tipoFiltro: tipo, valorFiltro: valor}})}>
       <View style={styles.item}>
         <Image
           style={styles.imagenPlaceholder}
@@ -87,24 +114,26 @@ function ProductoItem({ producto }: { producto: Producto }) {
           contentFit="cover"
         />
         <View style={styles.info}>
-          <Text style={styles.nombre}>{producto.nombre}</Text>
-          <Text style={styles.marca}>{producto.marca.toUpperCase()}</Text>
+          <Text style={styles.nombre}>{producto.nombre || "Producto sin nombre"}</Text>
+          <Text style={styles.marca}>{marcaFormateada}</Text>     
           <View style={styles.scores}>
             <Text
               style={[
                 styles.nutri,
-                { backgroundColor: NUTRI_COLORES[producto.nutriScore] },
+                { backgroundColor: esNutriNoAplicable ? "#727272" : (NUTRI_COLORES[nutriScore] ?? "#727272")},
               ]}
             >
-              NUTRI-SCORE {producto.nutriScore}
+              {textoNutri}
             </Text>
             <Text
               style={[
                 styles.eco,
-                { backgroundColor: ECO_COLORES[producto.ecoScore] ?? "#ccc" },
+                { 
+                  backgroundColor: esEcoNoAplicable ? "#727272" : (ECO_COLORES[ecoScore] ?? "#727272") 
+                },
               ]}
             >
-              ECO-SCORE {producto.ecoScore}
+              {textoEco}
             </Text>
           </View>
         </View>
