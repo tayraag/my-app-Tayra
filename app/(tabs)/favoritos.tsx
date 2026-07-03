@@ -7,7 +7,7 @@ export default function FavoritesScreen() {
 
   if (isLoading) {
     return (
-      <View style={[styles.container, styles.center]}>
+      <View style={styles.containerCenter}>
         <ActivityIndicator size="large" color="#0055ff" />
       </View>
     );
@@ -31,7 +31,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 20,
   },
-  center: {
+  containerCenter: {
+    flex: 1,
+    paddingTop: 45,
+    paddingHorizontal: 16,
+    paddingBottom: 20,
     justifyContent: "center",
     alignItems: "center",
   },

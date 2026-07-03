@@ -1,6 +1,6 @@
 import ProductosFiltrables from "@/src/components/ProductosListado";
 import { useProductos } from "@/src/hooks/useProductos";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import {
   ActivityIndicator,
   Pressable,
@@ -31,10 +31,7 @@ export default function EtiquetaScreen() {
 
   if (isLoading || (isFetching && !isFetchingNextPage && productos.length === 0)) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <Stack.Screen
-          options={{ title: nombre.charAt(0).toUpperCase() + nombre.slice(1) }}
-        />
+      <View style={styles.containerCenter}>
         <ActivityIndicator size="large" color="#0055ff" />
       </View>
     );
@@ -42,10 +39,7 @@ export default function EtiquetaScreen() {
 
   if (error && !isFetching) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <Stack.Screen
-          options={{ title: nombre.charAt(0).toUpperCase() + nombre.slice(1) }}
-        />
+      <View style={styles.containerCenter}>
         <Text style={styles.errorText}>⚠️ Error al cargar productos</Text>
         <Text style={styles.errorDetails}>
           {error.message || "Intenta nuevamente"}
@@ -65,9 +59,6 @@ export default function EtiquetaScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen
-        options={{ title: nombre.charAt(0).toUpperCase() + nombre.slice(1) }}
-      />
       <ProductosFiltrables
         tipo="etiquetas"
         valor={nombre}
@@ -87,7 +78,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 20,
   },
-  center: {
+  containerCenter: {
+    flex: 1,
+    paddingTop: 20,
+    paddingHorizontal: 16,
+    paddingBottom: 20,
     justifyContent: "center",
     alignItems: "center",
   },

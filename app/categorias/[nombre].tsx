@@ -1,6 +1,6 @@
 import ProductosFiltrables from "@/src/components/ProductosListado";
 import { useProductos } from "@/src/hooks/useProductos";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { ActivityIndicator, StyleSheet, View, Text, Pressable } from "react-native";
 
 type CategoriaParams = {
@@ -16,10 +16,7 @@ export default function CategoriaScreen() {
 
   if (isLoading || (isFetching && !isFetchingNextPage && productos.length === 0)) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <Stack.Screen
-          options={{ title: nombre.charAt(0).toUpperCase() + nombre.slice(1) }}
-        />
+      <View style={styles.containerCenter}>
         <ActivityIndicator size="large" color="#0055ff" />
       </View>
     );
@@ -27,10 +24,7 @@ export default function CategoriaScreen() {
 
   if (error && !isFetching) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <Stack.Screen
-          options={{ title: nombre.charAt(0).toUpperCase() + nombre.slice(1) }}
-        />
+      <View style={styles.containerCenter}>
         <Text style={styles.errorText}>⚠️ Error al cargar productos</Text>
         <Text style={styles.errorDetails}>{error.message || "Intenta nuevamente"}</Text>
         <Pressable 
@@ -48,9 +42,6 @@ export default function CategoriaScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen
-        options={{ title: nombre.charAt(0).toUpperCase() + nombre.slice(1) }}
-      />
       <ProductosFiltrables  
         tipo="categoria" 
         valor={nombre} 
@@ -69,7 +60,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 20,
   },
-  center: {
+  containerCenter: {
+    flex: 1,
+    paddingTop: 20,
+    paddingHorizontal: 16,
+    paddingBottom: 20,
     justifyContent: "center",
     alignItems: "center",
   },

@@ -4,6 +4,7 @@ import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { useState, memo } from "react";
 import { buildRoute, ROUTES } from "@/src/constants/routes";
+import { NUTRI_COLORES, ECO_COLORES, normalizarEcoScore } from "@/src/constants/scores";
 import {
   FlatList,
   Pressable,
@@ -75,28 +76,6 @@ export default function ProductosFiltrables({ tipo, valor = "", productos = [], 
   );
 }
 
-const NUTRI_COLORES: Record<string, string> = {
-  A: "#2e7d32",
-  B: "#8bc34a",
-  C: "#fdd835",
-  D: "#ff9800",
-  E: "#f44336",
-};
-
-const ECO_COLORES: Record<string, string> = {
-  "A+": "#1b5e20",
-  A: "#2e7d32",
-  "B+": "#558b2f",
-  B: "#8bc34a",
-  C: "#fdd835",
-  D: "#ff9800",
-  E: "#f44336",
-  F: "#b71c1c",
-};
-
-const normalizarEcoScore = (score: string): string => {
-  return score.replace("-PLUS", "+").toUpperCase();
-};
 
 const ProductoItem = memo(function ProductoItem({ producto, tipo, valor }: { producto: Producto,  tipo: string; valor: string;  }) {
   const router = useRouter();
@@ -106,10 +85,10 @@ const ProductoItem = memo(function ProductoItem({ producto, tipo, valor }: { pro
   const nutriScore: string = producto.nutriScore || "N/A";
   const ecoScoreRaw: string = producto.ecoScore || "N/A";
   const ecoScore = normalizarEcoScore(ecoScoreRaw);
-  const esNutriNoAplicable = nutriScore === "NOT-APPLICABLE" || nutriScore === "N/A" || nutriScore === "UNKNOWN";
-  const textoNutri = esNutriNoAplicable ? "N/A" : `NUTRI-SCORE ${nutriScore}`;
-  const esEcoNoAplicable = ecoScore === "NOT-APPLICABLE" || ecoScore === "N/A" || ecoScore === "UNKNOWN";
-  const textoEco = esEcoNoAplicable ? "N/A" : `ECO-SCORE ${ecoScore}`;
+  const esNutriNoAplicable = !producto.nutriScore || nutriScore === "NOT-APPLICABLE" || nutriScore === "N/A" || nutriScore === "UNKNOWN";
+  const textoNutri = esNutriNoAplicable ? "-" : `NUTRI-SCORE ${nutriScore}`;
+  const esEcoNoAplicable = !producto.ecoScore || ecoScore === "NOT-APPLICABLE" || ecoScore === "N/A" || ecoScore === "UNKNOWN";
+  const textoEco = esEcoNoAplicable ? "-" : `ECO-SCORE ${ecoScore}`;
 
   return (
     <Pressable onPress={() => router.push(buildRoute(ROUTES.FICHA, { id: producto.id, tipoFiltro: tipo, valorFiltro: valor }))}>

@@ -3,11 +3,12 @@ import { Producto } from "@/src/data/productos";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { Stack, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useState, useEffect } from "react";
-import { Pressable, ScrollView, StyleSheet, Text, View, ActivityIndicator} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { obtenerFavorito } from "@/src/services/favoritos";
 import { useFavoritos } from "@/src/hooks/useFavoritos";
+import { NUTRI_COLORES, NOVA_COLORES, ECO_COLORES, normalizarEcoScore } from "@/src/constants/scores";
 
 type FichaParams = {
   id: string;
@@ -38,8 +39,7 @@ export default function FichaScreen() {
 
   if (loading) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <Stack.Screen options={{ title: "Cargando..." }} /> 
+      <View style={styles.containerCenter}>
         <ActivityIndicator size="large" color="#0055ff" />
       </View>
     );
@@ -47,8 +47,7 @@ export default function FichaScreen() {
 
   if (!prod) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <Stack.Screen options={{ title: "No encontrado" }} /> 
+      <View style={styles.containerCenter}>
         <Text style={{ marginTop: 20 }}>Producto no encontrado</Text>
       </View>
     );
@@ -56,7 +55,6 @@ export default function FichaScreen() {
 
   return (
     <View style={styles.container}>
-      <Stack.Screen options={{ title: prod.nombre }} />
       <ScrollView>
         <Image
           style={styles.imagenPlaceholder}
@@ -65,57 +63,36 @@ export default function FichaScreen() {
         />
         <SeccionPrincipal producto={prod} />
         <SeccionIngredientes producto={prod} />
-        <SeccionNutricional producto={prod} />
+        <ValoresNutricionales producto={prod} vertical />
       </ScrollView>
     </View>
   );
 }
 
-const NUTRI_COLORES: Record<string, string> = {
-  A: "#2e7d32",
-  B: "#8bc34a",
-  C: "#fdd835",
-  D: "#ff9800",
-  E: "#f44336",
-};
-
-const NOVA_COLORES: Record<number, string> = {
-  1: "#2e7d32",
-  2: "#8bc34a",
-  3: "#ff9800",
-  4: "#f44336",
-};
-
-const ECO_COLORES: Record<string, string> = {
-  "A+": "#1b5e20",
-  A: "#2e7d32",
-  "B+": "#558b2f",
-  B: "#8bc34a",
-  C: "#fdd835",
-  D: "#ff9800",
-  E: "#f44336",
-  F: "#b71c1c",
-};
-
-const normalizarEcoScore = (score: string): string => {
-  return score.replace("-PLUS", "+").toUpperCase();
-};
 
 function SeccionPrincipal({ producto }: { producto: Producto }) {
-  const nutriStr = String(producto.nutriScore).toUpperCase();
-  const ecoStr = String(producto.ecoScore).toUpperCase();
-  const esNutriNoAplicable = 
-    nutriStr === "NOT-APPLICABLE" || 
-    nutriStr === "UNKNOWN" || 
-    nutriStr === "NOT-KNOWN" || 
+  const nutriStr = String(producto.nutriScore || "").toUpperCase();
+  const ecoStr = String(producto.ecoScore || "").toUpperCase();
+  const esNutriNoAplicable =
+    !producto.nutriScore ||
+    nutriStr === "NOT-APPLICABLE" ||
+    nutriStr === "UNKNOWN" ||
+    nutriStr === "NOT-KNOWN" ||
     nutriStr === "N/A";
-  const esEcoNoAplicable = 
-    ecoStr === "NOT-APPLICABLE" || 
-    ecoStr === "UNKNOWN" || 
-    ecoStr === "NOT-KNOWN" || 
+  const esEcoNoAplicable =
+    !producto.ecoScore ||
+    ecoStr === "NOT-APPLICABLE" ||
+    ecoStr === "UNKNOWN" ||
+    ecoStr === "NOT-KNOWN" ||
     ecoStr === "N/A";
-  const valorNutri = esNutriNoAplicable ? "N/A" : producto.nutriScore;
-  const valorEco = esEcoNoAplicable ? "N/A" : normalizarEcoScore(producto.ecoScore);
+  const esNovaNoAplicable =
+    !producto.novaGroup ||
+    producto.novaGroup < 1 ||
+    producto.novaGroup > 4;
+
+  const valorNutri = esNutriNoAplicable ? "-" : producto.nutriScore;
+  const valorEco = esEcoNoAplicable ? "-" : normalizarEcoScore(producto.ecoScore);
+  const valorNova = esNovaNoAplicable ? "-" : producto.novaGroup;
 
   return (
     <View style={[styles.seccion, styles.seccionPrincipalOffset]}>
@@ -123,20 +100,20 @@ function SeccionPrincipal({ producto }: { producto: Producto }) {
       <Text style={styles.marca}>{producto.marca.toUpperCase()}</Text>
       <Text style={styles.nombreProducto}>{producto.nombre}</Text>
       <View style={styles.scoresContainer}>
-        <ScoreBox 
-          label={"NUTRI-\nSCORE"} 
-          valor={valorNutri} 
-          color={esNutriNoAplicable ? "#727272" : NUTRI_COLORES[producto.nutriScore]} 
+        <ScoreBox
+          label={"NUTRI-\nSCORE"}
+          valor={valorNutri}
+          color={esNutriNoAplicable ? "#727272" : (NUTRI_COLORES[producto.nutriScore] ?? "#727272")}
         />
-        <ScoreBox 
-          label={"NOVA\nGROUP"} 
-          valor={producto.novaGroup} 
-          color={NOVA_COLORES[producto.novaGroup]} 
+        <ScoreBox
+          label={"NOVA\nGROUP"}
+          valor={valorNova}
+          color={esNovaNoAplicable ? "#727272" : (NOVA_COLORES[producto.novaGroup] ?? "#727272")}
         />
-        <ScoreBox 
-          label={"ECO-\nSCORE"} 
-          valor={valorEco} 
-          color={esEcoNoAplicable ? "#727272" : (ECO_COLORES[valorEco] ?? "#727272")} 
+        <ScoreBox
+          label={"ECO-\nSCORE"}
+          valor={valorEco}
+          color={esEcoNoAplicable ? "#727272" : (ECO_COLORES[valorEco] ?? "#727272")}
         />
       </View>
       <ValoresNutricionales producto={producto} />
@@ -145,20 +122,25 @@ function SeccionPrincipal({ producto }: { producto: Producto }) {
 }
 
 function SeccionIngredientes({ producto }: { producto: Producto }) {
+  const sinInfo = 
+    !producto.ingredientes || 
+    producto.ingredientes.trim() === "" || 
+    producto.ingredientes === "-" || 
+    producto.ingredientes === "No especificados";
   return (
     <View style={[styles.seccion, styles.seccionIngredientesBg]}>
       <View style={styles.seccionHeaderRow}>
         <FontAwesome name="table" size={20} color="#2e7d32" />
         <Text style={styles.tituloSeccion}>Ingredients</Text>
       </View>
-      <Text style={styles.ingredientsText}>{producto.ingredientes}</Text>
-      <View style={styles.alergenoBox}>
-        <FontAwesome name="warning" size={16} color="#c62828" />
-        <View style={styles.alergenoInfo}>
-          <Text style={styles.alergenoTitulo}>ALLERGEN INFORMATION</Text>
-          <Text style={styles.alergenoTexto}>{producto.alergenos}</Text>
+      {sinInfo ? (
+        <View style={styles.sinInfoBox}>
+          <FontAwesome name="warning" size={24} color="black" />
+          <Text style={styles.sinInfoText}>Sin información</Text>
         </View>
-      </View>
+      ) : (
+        <Text style={styles.ingredientsText}>{producto.ingredientes}</Text>
+      )}
     </View>
   );
 }
@@ -168,27 +150,22 @@ type NutriItemConfig = {
     Producto,
     | "energia"
     | "grasa"
-    | "grasaSaturada"
     | "carbohidratos"
-    | "azucares"
     | "fibra"
     | "proteina"
     | "sal"
   >;
   label: string;
   unit: string;
-  sub?: boolean;
 };
 
 const SECCION_NUTRI_ITEMS: NutriItemConfig[] = [
-  { key: "energia", label: "Energy", unit: " kJ" },
+  { key: "energia", label: "Energy", unit: "" },
   { key: "grasa", label: "Fat", unit: "g" },
-  { key: "grasaSaturada", label: "  — of which saturates", unit: "g", sub: true },
   { key: "carbohidratos", label: "Carbohydrate", unit: "g" },
-  { key: "azucares", label: "  — of which sugars", unit: "g", sub: true },
   { key: "fibra", label: "Fibre", unit: "g" },
   { key: "proteina", label: "Protein", unit: "g" },
-  { key: "sal", label: "Sal", unit: "g" },
+  { key: "sal", label: "Salt", unit: "g" },
 ];
 
 const formatearValorNutricional = (valor: any): string => {
@@ -198,33 +175,59 @@ const formatearValorNutricional = (valor: any): string => {
   return String(valor);
 };
 
-function SeccionNutricional({ producto }: { producto: Producto }) {
-  return (
-    <View style={styles.seccion}>
-      <View style={styles.seccionHeaderRow}>
-        <FontAwesome name="bar-chart" size={20} color="#2e7d32" />
-        <Text style={styles.tituloSeccion}>Nutritional Values (per 100ml)</Text>
-      </View>
-      {SECCION_NUTRI_ITEMS.map((item) => (
-        <FilaValor
-          key={item.key}
-          label={item.label}
-          valor={`${formatearValorNutricional(producto[item.key])}${item.unit}`}
-          sub={item.sub}
-        />
-      ))}
-    </View>
-  );
-}
+function ValoresNutricionales({ producto, vertical = false }: { producto: Producto; vertical?: boolean }) {
+  const renderValor = (item: NutriItemConfig) => {
+    const val = producto[item.key] as any;
+    if (val === undefined || val === null || val === "" || (typeof val === "number" && isNaN(val))) {
+      return "-";
+    }
+    if (item.key === "energia") {
+      if (typeof val !== "number" || isNaN(val)) {
+        return "-";
+      }
+      const kcal = Math.round(val / 4.184);
+      return `${kcal} kcal / ${val} kJ`;
+    }
+    return `${formatearValorNutricional(val)}${item.unit}`;
+  };
 
-function ValoresNutricionales({ producto }: { producto: Producto }) {
+  const sinInfo = SECCION_NUTRI_ITEMS.every((item) => {
+    const val = producto[item.key] as any;
+    return val === undefined || val === null || val === "";
+  });
+
+  if (vertical) {
+    return (
+      <View style={styles.seccion}>
+        <View style={styles.seccionHeaderRow}>
+          <FontAwesome name="bar-chart" size={20} color="#2e7d32" />
+          <Text style={styles.tituloSeccion}>Nutritional Values</Text>
+        </View>
+        {sinInfo ? (
+          <View style={styles.sinInfoBox}>
+            <FontAwesome name="warning" size={24} color="black" />
+            <Text style={styles.sinInfoText}>Sin información</Text>
+          </View>
+        ) : (
+          SECCION_NUTRI_ITEMS.map((item) => (
+            <FilaValor
+              key={item.key}
+              label={item.label}
+              valor={renderValor(item)}
+            />
+          ))
+        )}
+      </View>
+    );
+  }
+
   return (
     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-      {SECCION_NUTRI_ITEMS.filter((item) => !item.sub).map((item) => (
+      {SECCION_NUTRI_ITEMS.map((item) => (
         <ValorItem
           key={item.key}
           label={item.label.toUpperCase()}
-          valor={`${formatearValorNutricional(producto[item.key])}${item.unit}`}
+          valor={renderValor(item)}
         />
       ))}
     </ScrollView>
@@ -254,13 +257,13 @@ function ScoreBox({ label, valor, color }: { label: string; valor: string | numb
   );
 }
 
-function FilaValor({label, valor, sub = false}: { label: string; valor: string; sub?: boolean;}) {
+function FilaValor({ label, valor }: { label: string; valor: string; }) {
   return (
     <View style={styles.filaValor}>
-      <Text style={[styles.filaLabel, sub && styles.filaLabelSub]}>
+      <Text style={styles.filaLabel}>
         {label}
       </Text>
-      <Text style={[styles.filaValorText, sub && styles.filaValorSub]}>
+      <Text style={styles.filaValorText}>
         {valor}
       </Text>
     </View>
@@ -324,7 +327,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  center: {
+  containerCenter: {
+    flex: 1,
     justifyContent: "center",
     alignItems: "center",
   },
@@ -423,25 +427,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  alergenoBox: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 10,
-    backgroundColor: "#ffebee",
-    borderRadius: 10,
-    padding: 12,
-  },
-  alergenoTitulo: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#c62828",
-    letterSpacing: 0.5,
-  },
-  alergenoTexto: {
-    fontSize: 13,
-    color: "#c62828",
-    marginTop: 2,
-  },
   filaValor: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -455,18 +440,23 @@ const styles = StyleSheet.create({
     color: "#333",
     fontWeight: "500",
   },
-  filaLabelSub: {
-    fontSize: 13,
-    fontStyle: "italic",
-    color: "#888",
-    paddingLeft: 24,
-  },
   filaValorText: {
     fontSize: 15,
     fontWeight: "700",
   },
-  filaValorSub: {
-    fontWeight: "400",
-    color: "#888",
+  sinInfoBox: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    paddingVertical: 20,
+    backgroundColor: "#f5f5f5",
+    borderRadius: 8,
+    marginTop: 10,
+  },
+  sinInfoText: {
+    fontSize: 14,
+    color: "#666",
+    fontWeight: "600",
   },
 });
