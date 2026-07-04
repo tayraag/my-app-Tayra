@@ -1,46 +1,20 @@
-export type FiltroTipo = "categoria" | "marca" | "etiquetas" | "busqueda";
-
-interface SearchParamsOptions {
-  tipo: FiltroTipo;
-  valor: string;
-  pageParam?: number;
-}
-
-export async function searchProducts({ tipo, valor, pageParam = 1 }: SearchParamsOptions): Promise<ProductSearchResponse> {
-  const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
-  const url = `${BASE_URL}/v2/search`;
-
-  const QueryParamsMap: Record<FiltroTipo, string> = {
-    categoria: "categories_tags",
-    marca: "brands_tags",
-    etiquetas: "labels_tags", 
-    busqueda: "search_terms",
-  };
-
-  const apiKeyParam = QueryParamsMap[tipo];
-
-  const params = new URLSearchParams({
-    [apiKeyParam]: valor,
-    page: pageParam.toString(),
-    page_size: "20",
-    fields: "code,_id,product_name,product_name_es,product_name_en,brands,categories_tags,labels_tags,nutriscore_grade,nutrition_grades,ecoscore_grade,nova_group,nutriments,ingredients_text_es,ingredients_text_en,ingredients_text,allergens,image_url,image_front_url",
-  });
-
-  const response = await fetch(`${url}?${params.toString()}`, {
-    headers: { "User-Agent": "UNTDF TNT 2026" },
-  });
-
-  if (!response.ok) {
-    throw new Error(`Error HTTP: ${response.status}`);
-  }
-
-  const data = await response.json();
-  return data as ProductSearchResponse;
-}
+/**
+ * productos_completo.ts — Tipado COMPLETO de la respuesta de Open Food Facts.
+ *
+ * Este archivo contiene la interfaz `Product` con TODOS los campos que la API
+ * puede devolver (sin filtro de `fields`).
+ *
+ * NO se usa en producción. El archivo activo es `productos.ts`, que tipa
+ * solo los campos que realmente pedimos en la petición HTTP.
+ *
+ * Se conserva como documentación / referencia por si en el futuro se necesita
+ * acceder a campos adicionales de la API.
+ */
 
 // ===================================================
 // TYPES
 // ===================================================
+
 
 export interface ProductSearchResponse {
   count: number;
