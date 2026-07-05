@@ -31,6 +31,7 @@ export default function RootLayout() {
       <Tabs.Screen
         name="favoritos"
         options={{
+          href: null,//ocultado temporalmente, eliminar para mostrar en la barra de navegacion 
           title: "Favoritos",
           headerTitle: "Favoritos",
           tabBarLabel: "Favoritos",

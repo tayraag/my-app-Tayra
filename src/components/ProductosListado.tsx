@@ -15,7 +15,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-type FiltroTipo = "categoria" | "marca" | "etiquetas" | "favorito";
+type FiltroTipo = "categoria" | "marca" | "etiquetas" | "favorito" | "busqueda";
 
 type Props = {
   tipo: FiltroTipo;
@@ -24,28 +24,58 @@ type Props = {
   totalItems?: number;
   onEndReached?: () => void; 
   isFetchingNextPage?: boolean;
+  onSearchChange?: (text: string) => void;
+  onBarcodePress?: () => void;
+  titulo?: string;
 };
 
-export default function ProductosFiltrables({ tipo, valor = "", productos = [], totalItems, onEndReached, isFetchingNextPage }: Props) {
+export default function ProductosFiltrables({ 
+  tipo, 
+  valor = "", 
+  productos = [], 
+  totalItems, 
+  onEndReached, 
+  isFetchingNextPage,
+  onSearchChange,
+  onBarcodePress,
+  titulo
+}: Props) {
   const [busqueda, setBusqueda] = useState("");
-  const productosFiltrados = productos.filter((p) => {
-    const nombreProducto = p.nombre?.toLowerCase() ?? "";
-    return nombreProducto.includes(busqueda.toLowerCase());
-  });
+
+  const handleSearchChange = (text: string) => {
+    setBusqueda(text);
+    if (onSearchChange) {
+      onSearchChange(text);
+    }
+  };
+
+  const productosFiltrados = onSearchChange 
+    ? productos 
+    : productos.filter((p) => {
+        const nombreProducto = p.nombre?.toLowerCase() ?? "";
+        return nombreProducto.includes(busqueda.toLowerCase());
+      });
   const conteoFinal = busqueda ? productosFiltrados.length : (totalItems ?? productosFiltrados.length);
-  const tituloMostrado = valor ? valor.toUpperCase() : "CARGANDO...";
+  const tituloMostrado = titulo ? titulo : (valor ? valor.toUpperCase() : "CARGANDO...");
 
   return (
     <>
       <Text style={styles.title}> {tituloMostrado}</Text>
       <Text style={styles.conteo}>{conteoFinal} ITEMS FOUND</Text>
-      <View style={styles.inputContainer}>
-        <FontAwesome name="search" size={18} color="grey" />
-        <TextInput
-          style={styles.input}
-          placeholder="Search products..."
-          onChangeText={setBusqueda}
-        />
+      <View style={styles.searchRow}>
+        <View style={styles.inputContainer}>
+          <FontAwesome name="search" size={18} color="grey" />
+          <TextInput
+            style={styles.input}
+            placeholder="Search products..."
+            onChangeText={handleSearchChange}
+          />
+        </View>
+        {tipo === "busqueda" && (
+          <Pressable style={styles.barcodeBtn} onPress={onBarcodePress}>
+            <FontAwesome name="barcode" size={24} color="white" />
+          </Pressable>
+        )}
       </View>
       <FlatList
         data={productosFiltrados}
@@ -122,7 +152,7 @@ const ProductoItem = memo(function ProductoItem({ producto, tipo, valor }: { pro
             </Text>
           </View>
         </View>
-        <FontAwesome name="chevron-right" size={20} color="#727272" />
+        <FontAwesome name="chevron-right" size={20} color="#727272" style={{ alignSelf: "center" }} />
       </View>
     </Pressable>
   );
@@ -151,14 +181,28 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     color: "#888",
   },
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "stretch",
+    marginHorizontal: 14,
+    marginVertical: 10,
+    gap: 12,
+  },
   inputContainer: {
+    flex: 1,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#c7c7c7",
+    backgroundColor: "#eeeded",
     borderRadius: 12,
     paddingHorizontal: 12,
     gap: 8,
-    margin: 14,
+  },
+  barcodeBtn: {
+    width: 50,
+    backgroundColor: "#0b8020",
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
   },
   input: {
     flex: 1,
@@ -167,13 +211,15 @@ const styles = StyleSheet.create({
   },
   item: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: 12,
     padding: 16,
     marginHorizontal: 16,
     marginBottom: 12,
     borderRadius: 12,
     backgroundColor: "#fff",
+    borderWidth: 1,
+    borderColor: "#f2f2f2",
     shadowColor: "#000",
     shadowOpacity: 0.06,
     shadowRadius: 6,
@@ -181,8 +227,9 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   info: {
-    gap: 4,
     flex: 1,
+    minHeight: 80,
+    justifyContent: "space-between",
   },
   nombre: {
     fontSize: 16,
@@ -196,7 +243,7 @@ const styles = StyleSheet.create({
   scores: {
     flexDirection: "row",
     gap: 8,
-    marginTop: 6,
+    marginTop: "auto",
   },
   nutri: {
     fontSize: 11,

@@ -7,7 +7,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRefreshOnFocus } from "./useRefreshOnFocus";
 
-export const FAVORITOS_HOOK_KEY = ["favoritos"];
+const FAVORITOS_HOOK_KEY = ["favoritos"];
 
 export function useFavoritos() {
   const queryClient = useQueryClient();

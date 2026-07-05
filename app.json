@@ -39,7 +39,16 @@
           }
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "$(PRODUCT_NAME) usa tu camara para escanear códigos de barra",
+          "microphonePermission": "No usamos el micrófono",
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": true
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

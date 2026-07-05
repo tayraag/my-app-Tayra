@@ -8,6 +8,8 @@
  * Para ver el tipado completo de la respuesta de la API (sin filtro de campos),
  * consultar `productos_completo.ts` (archivo de referencia, no se usa en producción).
  */
+import { transformProduct } from "../transformers/search-products.transformer";
+import { Producto } from "../data/productos";
 
 export type FiltroTipo = "categoria" | "marca" | "etiquetas" | "busqueda";
 
@@ -62,7 +64,7 @@ export interface ProductSearchResponse {
   skip: number;
 }
 
-export interface Product {
+interface Product {
   _id: string;
   code: string;
   product_name?: string;
@@ -94,9 +96,10 @@ export interface Product {
   image_front_url?: string;
 }
 
-export async function getProduct(code: string): Promise<any> {
+export async function getProduct(code: string): Promise<Producto> {
   const BASE_URL = process.env.EXPO_PUBLIC_API_URL;
-  const response = await fetch(`${BASE_URL}/v2/product/${code}?fields=code,_id,product_name,product_name_es,product_name_en,brands,image_url`, {
+  const fields = "code,_id,product_name,product_name_es,product_name_en,brands,categories_tags,labels_tags,nutriscore_grade,nutrition_grades,ecoscore_grade,nova_group,nutriments,ingredients_text_es,ingredients_text_en,ingredients_text,allergens,image_url,image_front_url";
+  const response = await fetch(`${BASE_URL}/v2/product/${code}?fields=${fields}`, {
     headers: { "User-Agent": "UNTDF TNT 2026" },
   });
   if (!response.ok) {
@@ -106,5 +109,5 @@ export async function getProduct(code: string): Promise<any> {
   if (data.status !== 1) {
     throw new Error("Producto no encontrado");
   }
-  return data.product;
+  return transformProduct(data.product);
 }

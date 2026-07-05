@@ -39,6 +39,3 @@ export const buildRoute = (route: AppRoute, params?: RouteParams): Href => {
   return (queryParams ? `${path}?${queryParams}` : path) as Href;
 };
 
-export function fichaShowRoute(id: string) {
-  return buildRoute(ROUTES.FICHA, { id });
-}
