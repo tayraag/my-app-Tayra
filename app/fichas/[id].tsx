@@ -3,11 +3,13 @@ import { Producto } from "@/src/data/productos";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, router } from "expo-router";
 import { useState, useEffect } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View, ActivityIndicator } from "react-native";
 import { obtenerFavorito } from "@/src/services/favoritos";
 import { useFavoritos } from "@/src/hooks/useFavoritos";
+import { useAuth } from "@/src/hooks/useAuth";
+import { buildRoute, ROUTES } from "@/src/constants/routes";
 import { NUTRI_COLORES, NOVA_COLORES, ECO_COLORES, normalizarEcoScore } from "@/src/constants/scores";
 
 type FichaParams = {
@@ -271,10 +273,15 @@ function FilaValor({ label, valor }: { label: string; valor: string; }) {
 }
 
 function FavButton({ producto }: { producto: Producto }) {
+  const { usuario } = useAuth();
   const { esFavorito, guardarFavorito, eliminarFavorito } = useFavoritos();
   const favorito = esFavorito(producto.id);
 
   const handlePress = async () => {
+    if (!usuario) {
+      router.push(buildRoute(ROUTES.LOGIN));
+      return;
+    }
     if (favorito) {
       await eliminarFavorito(producto.id);
     } else {

@@ -13,6 +13,7 @@ export const ROUTES = {
   TABS: "/",
   TABS_FAVS: "/favoritos",
   TABS_BUSCAR: "/buscar",
+  LOGIN: "/auth/login",
 } as const;
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];
