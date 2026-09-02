@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, TouchableOpacity, Alert } from "react-native";
 import { useProductos } from "@/src/hooks/useProductos";
 import ProductosFiltrables from "@/src/components/ProductosListado";
 import EscanerCamara from "@/src/components/EscanerCamara";
@@ -8,24 +8,22 @@ import { buildRoute, ROUTES } from "@/src/constants/routes";
 import { getProduct } from "@/src/services/productos";
 import { useQueryClient } from "@tanstack/react-query";
 import { useFocusEffect } from "@react-navigation/native";
-import { getHistorial, addProductoAlHistorial } from "@/src/services/historial";
-import { Producto } from "@/src/data/productos";
+import { useHistorial } from "@/src/hooks/useHistorial";
+import { FontAwesome } from "@expo/vector-icons";
 
 export default function SearchScreen() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { historial, agregarAlHistorial, limpiarHistorial } = useHistorial();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedTerm, setDebouncedTerm] = useState("");
   const [scannerActive, setScannerActive] = useState(false);
   const [scannedCode, setScannedCode] = useState<string | null>(null);
   const [scanState, setScanState] = useState<"idle" | "loading" | "found" | "not_found">("idle");
-  const [historial, setHistorial] = useState<Producto[]>([]);
 
   useFocusEffect(
     React.useCallback(() => {
-      cargarHistorial();
-
       return () => {
         setScannerActive(false);
         setScanState("idle");
@@ -33,19 +31,11 @@ export default function SearchScreen() {
     }, [])
   );
 
-  const cargarHistorial = async () => {
-    const data = await getHistorial();
-    setHistorial(data);
-  };
-
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedTerm(searchTerm);
     }, 500);
-
-    return () => {
-      clearTimeout(handler);
-    };
+    return () => clearTimeout(handler);
   }, [searchTerm]);
 
   const {
@@ -84,9 +74,7 @@ export default function SearchScreen() {
         pages: [{ count: 1, products: [parsedProduct] }],
         pageParams: [1],
       });
-
-      await addProductoAlHistorial(parsedProduct);
-      await cargarHistorial();
+      await agregarAlHistorial(parsedProduct);
       setScanState("found");
     } catch {
       setScanState("not_found");
@@ -107,14 +95,34 @@ export default function SearchScreen() {
     }
   };
 
+  const handleLimpiarHistorial = () => {
+    Alert.alert(
+      "Limpiar historial",
+      "¿Querés borrar todo el historial de escaneos?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Borrar",
+          style: "destructive",
+          onPress: () => limpiarHistorial(),
+        },
+      ]
+    );
+  };
+
   const mostrarHistorial = !searchTerm;
   const displayProducts = mostrarHistorial ? historial : productos;
   const displayTotal = mostrarHistorial ? historial.length : totalItems;
 
   return (
     <View style={styles.container}>
+      {mostrarHistorial && historial.length > 0 && (
+        <TouchableOpacity style={styles.botonLimpiar} onPress={handleLimpiarHistorial}>
+          <FontAwesome name="trash" size={16} color="#94a3b8" />
+        </TouchableOpacity>
+      )}
       <ProductosFiltrables
-        tipo="busqueda"
+        tipo={mostrarHistorial ? "historial" : "busqueda"}
         valor={mostrarHistorial ? "" : searchTerm}
         titulo={mostrarHistorial ? "BUSCAR" : undefined}
         productos={displayProducts}
@@ -123,6 +131,7 @@ export default function SearchScreen() {
         isFetchingNextPage={!mostrarHistorial && isFetchingNextPage}
         onSearchChange={setSearchTerm}
         onBarcodePress={handleBarcodePress}
+        onProductPress={!mostrarHistorial ? (producto) => agregarAlHistorial(producto) : undefined}
       />
       <EscanerCamara
         visible={scannerActive}
@@ -144,5 +153,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 20,
     backgroundColor: "#fff",
+  },
+  botonLimpiar: {
+    position: "absolute",
+    top: 52,
+    right: 20,
+    zIndex: 10,
+    padding: 8,
+    backgroundColor: "#f1f5f9",
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#e2e8f0",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
 });

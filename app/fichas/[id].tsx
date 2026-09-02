@@ -6,8 +6,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useLocalSearchParams, router } from "expo-router";
 import { useState, useEffect } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View, ActivityIndicator } from "react-native";
-import { obtenerFavorito } from "@/src/services/favoritos";
 import { useFavoritos } from "@/src/hooks/useFavoritos";
+import { useHistorial } from "@/src/hooks/useHistorial";
 import { useAuth } from "@/src/hooks/useAuth";
 import { buildRoute, ROUTES } from "@/src/constants/routes";
 import { NUTRI_COLORES, NOVA_COLORES, ECO_COLORES, normalizarEcoScore } from "@/src/constants/scores";
@@ -21,23 +21,33 @@ type FichaParams = {
 export default function FichaScreen() {
   const { id, tipoFiltro, valorFiltro } = useLocalSearchParams<FichaParams>();
   const queryClient = useQueryClient();
+  const { favoritos, isLoading: favLoading } = useFavoritos();
+  const { historial, isLoading: histLoading } = useHistorial();
   const [prod, setProd] = useState<Producto | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function cargarProducto() {
-      if (tipoFiltro === "favorito") {
-        const fav = await obtenerFavorito(id);
-        setProd(fav);
-      } else {
-        const cachedData: any = queryClient.getQueryData(["products", tipoFiltro, valorFiltro]);
-        const found = cachedData?.pages?.flatMap((page: any) => page.products).find((p: any) => p.id === id);
-        setProd(found || null);
+    if (tipoFiltro === "favorito") {
+      if (favLoading) return;
+      const fav = favoritos.find((f) => f.id === id) ?? null;
+      if (fav === null && prod !== null) {
+        router.back();
+        return;
       }
+      setProd(fav);
+      setLoading(false);
+    } else if (tipoFiltro === "historial") {
+      if (histLoading) return;
+      const item = historial.find((h) => h.id === id) ?? null;
+      setProd(item);
+      setLoading(false);
+    } else {
+      const cachedData: any = queryClient.getQueryData(["products", tipoFiltro, valorFiltro]);
+      const found = cachedData?.pages?.flatMap((page: any) => page.products).find((p: any) => p.id === id);
+      setProd(found || null);
       setLoading(false);
     }
-    cargarProducto();
-  }, [id, tipoFiltro, valorFiltro, queryClient]);
+  }, [id, tipoFiltro, valorFiltro, queryClient, favoritos, favLoading, historial, histLoading]);
 
   if (loading) {
     return (

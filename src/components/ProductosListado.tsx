@@ -15,7 +15,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 
-type FiltroTipo = "categoria" | "marca" | "etiquetas" | "favorito" | "busqueda";
+type FiltroTipo = "categoria" | "marca" | "etiquetas" | "favorito" | "busqueda" | "historial";
 
 type Props = {
   tipo: FiltroTipo;
@@ -26,6 +26,7 @@ type Props = {
   isFetchingNextPage?: boolean;
   onSearchChange?: (text: string) => void;
   onBarcodePress?: () => void;
+  onProductPress?: (producto: Producto) => void;
   titulo?: string;
 };
 
@@ -38,6 +39,7 @@ export default function ProductosFiltrables({
   isFetchingNextPage,
   onSearchChange,
   onBarcodePress,
+  onProductPress,
   titulo
 }: Props) {
   const [busqueda, setBusqueda] = useState("");
@@ -71,7 +73,7 @@ export default function ProductosFiltrables({
             onChangeText={handleSearchChange}
           />
         </View>
-        {tipo === "busqueda" && (
+        {(tipo === "busqueda" || tipo === "historial") && (
           <Pressable style={styles.barcodeBtn} onPress={onBarcodePress}>
             <FontAwesome name="barcode" size={24} color="white" />
           </Pressable>
@@ -80,7 +82,7 @@ export default function ProductosFiltrables({
       <FlatList
         data={productosFiltrados}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <ProductoItem producto={item} tipo={tipo} valor={valor} />}
+        renderItem={({ item }) => <ProductoItem producto={item} tipo={tipo} valor={valor} onProductPress={onProductPress} />}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
         onEndReached={onEndReached}
@@ -107,7 +109,7 @@ export default function ProductosFiltrables({
 }
 
 
-const ProductoItem = memo(function ProductoItem({ producto, tipo, valor }: { producto: Producto,  tipo: string; valor: string;  }) {
+const ProductoItem = memo(function ProductoItem({ producto, tipo, valor, onProductPress }: { producto: Producto; tipo: string; valor: string; onProductPress?: (producto: Producto) => void; }) {
   const router = useRouter();
   const marcaFormateada = producto.marca 
     ? producto.marca.toUpperCase() 
@@ -120,8 +122,13 @@ const ProductoItem = memo(function ProductoItem({ producto, tipo, valor }: { pro
   const esEcoNoAplicable = !producto.ecoScore || ecoScore === "NOT-APPLICABLE" || ecoScore === "N/A" || ecoScore === "UNKNOWN";
   const textoEco = esEcoNoAplicable ? "-" : `ECO-SCORE ${ecoScore}`;
 
+  const handlePress = () => {
+    onProductPress?.(producto);
+    router.push(buildRoute(ROUTES.FICHA, { id: producto.id, tipoFiltro: tipo, valorFiltro: valor }));
+  };
+
   return (
-    <Pressable onPress={() => router.push(buildRoute(ROUTES.FICHA, { id: producto.id, tipoFiltro: tipo, valorFiltro: valor }))}>
+    <Pressable onPress={handlePress}>
       <View style={styles.item}>
         <Image
           style={styles.imagenPlaceholder}

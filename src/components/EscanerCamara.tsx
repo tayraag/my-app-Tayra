@@ -101,7 +101,7 @@ export default function EscanerCamara({
                   {scanState === "loading" ? (
                     <View style={styles.loadingBox}>
                       <ActivityIndicator size="small" color="#2196f3" />
-                      <Text style={styles.loadingText}>Buscando en la API...</Text>
+                      <Text style={styles.loadingText}>Buscando producto...</Text>
                     </View>
                   ) : scanState === "found" ? (
                     <View style={styles.errorBox}>

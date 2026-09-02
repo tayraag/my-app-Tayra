@@ -1,54 +1,76 @@
 import { Producto } from "@/src/data/productos";
 import {
-    eliminarFavorito,
-    guardarFavorito,
-    obtenerFavoritos,
+  guardarFavorito as guardarFavoritoFS,
+  eliminarFavorito as eliminarFavoritoFS,
+  suscribirFavoritos,
+  ProductoFavorito,
 } from "@/src/services/favoritos";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRefreshOnFocus } from "./useRefreshOnFocus";
-
-const FAVORITOS_HOOK_KEY = ["favoritos"];
+import { useAuth } from "./useAuth";
+import { useEffect, useState, useCallback } from "react";
 
 export function useFavoritos() {
-  const queryClient = useQueryClient();
+  const { usuario } = useAuth();
+  const [favoritos, setFavoritos] = useState<ProductoFavorito[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  const {
-    data: favoritos = [],
-    isLoading,
-    error,
-  } = useQuery<Producto[]>({
-    queryKey: FAVORITOS_HOOK_KEY,
-    queryFn: obtenerFavoritos,
-  });
+  useEffect(() => {
+    if (!usuario) {
+      setFavoritos([]);
+      setIsLoading(false);
+      return;
+    }
 
-  useRefreshOnFocus(FAVORITOS_HOOK_KEY);
+    setIsLoading(true);
+    setError(null);
 
-  const addFavoriteMutation = useMutation({
-    mutationFn: guardarFavorito,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: FAVORITOS_HOOK_KEY });
+    const unsubscribe = suscribirFavoritos(usuario.uid, (nuevos) => {
+      setFavoritos(nuevos);
+      setIsLoading(false);
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [usuario?.uid]);
+
+  const guardarFavorito = useCallback(
+    async (producto: Producto) => {
+      if (!usuario) return;
+      try {
+        await guardarFavoritoFS(usuario.uid, producto);
+      } catch (e) {
+        setError(e as Error);
+      }
     },
-  });
+    [usuario]
+  );
 
-  const removeFavoriteMutation = useMutation({
-    mutationFn: eliminarFavorito,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: FAVORITOS_HOOK_KEY });
+  const eliminarFavorito = useCallback(
+    async (productoId: string) => {
+      if (!usuario) return;
+      try {
+        await eliminarFavoritoFS(usuario.uid, productoId);
+      } catch (e) {
+        setError(e as Error);
+      }
     },
-  });
+    [usuario]
+  );
 
-  const esFavorito = (id: string) => {
-    return favoritos.some((p) => p.id === id);
-  };
+  const esFavorito = useCallback(
+    (id: string) => favoritos.some((p) => p.id === id),
+    [favoritos]
+  );
 
   return {
     favoritos,
     isLoading,
     error,
-    guardarFavorito: addFavoriteMutation.mutateAsync,
-    eliminarFavorito: removeFavoriteMutation.mutateAsync,
+    guardarFavorito,
+    eliminarFavorito,
     esFavorito,
-    isSaving: addFavoriteMutation.isPending,
-    isDeleting: removeFavoriteMutation.isPending,
+    isSaving: false,
+    isDeleting: false,
   };
 }

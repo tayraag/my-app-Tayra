@@ -1,59 +1,44 @@
 import { Producto } from "@/src/data/productos";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { db } from "./firebase";
+import {
+  collection,
+  doc,
+  setDoc,
+  deleteDoc,
+  onSnapshot,
+  Unsubscribe,
+  serverTimestamp,
+} from "firebase/firestore";
 
 export type ProductoFavorito = Producto;
 
-const FAVORITOS_KEY = "productosFavoritos";
+const favoritosRef = (uid: string) =>
+  collection(db, "users", uid, "favoritos");
 
-export const obtenerFavoritos = async (): Promise<ProductoFavorito[]> => {
-  try {
-    const favoritos = await AsyncStorage.getItem(FAVORITOS_KEY);
-    return favoritos ? JSON.parse(favoritos) : [];
-  } catch (error) {
-    console.error("Error al obtener favoritos de AsyncStorage:", error);
-    return [];
-  }
+export const suscribirFavoritos = (
+  uid: string,
+  callback: (favoritos: ProductoFavorito[]) => void
+): Unsubscribe => {
+  return onSnapshot(favoritosRef(uid), (snapshot) => {
+    const favoritos: ProductoFavorito[] = snapshot.docs.map(
+      (docSnap) => docSnap.data() as ProductoFavorito
+    );
+    callback(favoritos);
+  });
 };
 
 export const guardarFavorito = async (
-  producto: ProductoFavorito,
-): Promise<boolean> => {
-  try {
-    const favoritos = await obtenerFavoritos();
-    const yaExiste = favoritos.some((fav) => fav.id === producto.id);
-    if (!yaExiste) {
-      favoritos.push(producto);
-      await AsyncStorage.setItem(FAVORITOS_KEY, JSON.stringify(favoritos));
-    }
-    return true;
-  } catch (error) {
-    console.error("Error al guardar favorito:", error);
-    return false;
-  }
+  uid: string,
+  producto: ProductoFavorito
+): Promise<void> => {
+  const ref = doc(db, "users", uid, "favoritos", producto.id);
+  await setDoc(ref, { ...producto, creadoEn: serverTimestamp() });
 };
 
 export const eliminarFavorito = async (
-  productoId: string,
-): Promise<boolean> => {
-  try {
-    let favoritos = await obtenerFavoritos();
-    favoritos = favoritos.filter((favorito) => favorito.id !== productoId);
-    await AsyncStorage.setItem(FAVORITOS_KEY, JSON.stringify(favoritos));
-    return true;
-  } catch (error) {
-    console.error("Error al eliminar favorito:", error);
-    return false;
-  }
-};
-
-export const obtenerFavorito = async (
-  productoId: string,
-): Promise<ProductoFavorito | null> => {
-  try {
-    const favoritos = await obtenerFavoritos();
-    return favoritos.find((favorito) => favorito.id === productoId) ?? null;
-  } catch (error) {
-    console.error("Error al obtener favorito:", error);
-    return null;
-  }
+  uid: string,
+  productoId: string
+): Promise<void> => {
+  const ref = doc(db, "users", uid, "favoritos", productoId);
+  await deleteDoc(ref);
 };
