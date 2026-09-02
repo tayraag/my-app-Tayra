@@ -71,7 +71,13 @@ export default function ProductosFiltrables({
             style={styles.input}
             placeholder="Search products..."
             onChangeText={handleSearchChange}
+            value={busqueda}
           />
+          {busqueda.length > 0 && (
+            <Pressable onPress={() => handleSearchChange("")}>
+              <FontAwesome name="times-circle" size={18} color="#999" />
+            </Pressable>
+          )}
         </View>
         {(tipo === "busqueda" || tipo === "historial") && (
           <Pressable style={styles.barcodeBtn} onPress={onBarcodePress}>
